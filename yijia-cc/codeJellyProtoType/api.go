@@ -158,6 +158,25 @@ type Hunk struct {
 
 
 //layer 3: group unchanged chunks and hunks into file change pair
+type Chunk struct {
+	lines []Line
+	isHunk bool
+}
+
+type DiffMetaData {
+	fromFilePath string
+	toFilePath string
+	isRenamed bool
+
+	totalNumOfLines int
+	numOfDeletedLines int
+	numOfAddedLines int
+}
+
+type Diff struct {
+	DiffMetaData
+	chunks []Chunk
+}
 
 //layer 4: feed data for split view and unified view
 type ChunkPair struct {
@@ -165,23 +184,10 @@ type ChunkPair struct {
 	newFileChunk Chunk
 }
 
-type Chunk struct {
-	lines []Line
-}
-
-type Diff struct {
-	oldFilePath string
-	newFilePath string
-	isRenamed bool
-	totalNumOfLines int
-	numOfDeletedLines int
-	numOfAddedLines int
-}
-
 // Backend For Frontend
 // ============Response body===============
 type SplitDiff struct {
-	Diff
+	DiffMetaData
 	allChunkPairs []ChunkPair
 
 	// Indices of changed chunk pair
@@ -189,7 +195,7 @@ type SplitDiff struct {
 }
 
 type UnifiedDiff struct {
-	Diff
+	DiffMetaData
 	allChunks []Chunk
 	changedChunkIndices []int
 }
