@@ -9,21 +9,21 @@ const (
 	ChangeRenamed
 )
 
-var changeStatusNames = map[ChangeStatus]string {
-	ChangeAdded: "Added",
+var changeStatusNames = map[ChangeStatus]string{
+	ChangeAdded:    "Added",
 	ChangeModified: "Modified",
-	ChangeDeleted: "Deleted",
-	ChangeRenamed: "Renamed",
+	ChangeDeleted:  "Deleted",
+	ChangeRenamed:  "Renamed",
 }
 
-var changeStatusMap = map[rune]ChangeStatus {
+var changeStatusMap = map[rune]ChangeStatus{
 	'M': ChangeModified,
 	'A': ChangeAdded,
 	'D': ChangeDeleted,
 	'R': ChangeRenamed,
 }
 
-func (c ChangeStatus) String() string{
+func (c ChangeStatus) String() string {
 	return changeStatusNames[c]
 }
 

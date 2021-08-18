@@ -1,13 +1,14 @@
 package git
 
 import (
-	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
-	"os/exec"
 	"strings"
+
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
 )
 
 type Repository struct {
-	rootPath string
+	rootPath        string
+	commandExecutor CommandExecutor
 }
 
 func (r Repository) GetFileDiffsBetweenBranches(fromBranch string, toBranch string) ([]entity.FileDiff, error) {
@@ -34,16 +35,17 @@ func (r Repository) GetFileDiffsBetweenBranches(fromBranch string, toBranch stri
 	return fileDiffs, nil
 }
 
-func (r Repository) executeGitCommand(args ...string) (string, error){
-	args = append([]string{"-C", r.rootPath}, args... )
-	out, err := exec.Command("git", args...).Output()
-	//cmd.Stderr = os.Stdout
-	return string(out), err
+func (r Repository) executeGitCommand(args ...string) (string, error) {
+	return r.commandExecutor.Execute("git", args...)
 }
 
 func NewRepository(rootPath string) Repository {
-	return Repository{
-		rootPath: rootPath,
-	}
+	return newRepository(ShellExecutor{}, rootPath)
 }
 
+func newRepository(commandExecutor CommandExecutor, rootPath string) Repository {
+	return Repository{
+		commandExecutor: commandExecutor,
+		rootPath:        rootPath,
+	}
+}

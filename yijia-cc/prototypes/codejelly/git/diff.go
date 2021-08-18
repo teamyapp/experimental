@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func newFileDiffFromLine(line string) (entity.FileDiff, error){
+func newFileDiffFromLine(line string) (entity.FileDiff, error) {
 	parts := strings.Fields(line)
 	if len(parts) < 2 {
 		return entity.FileDiff{}, fmt.Errorf("line must have at least 2 parts")

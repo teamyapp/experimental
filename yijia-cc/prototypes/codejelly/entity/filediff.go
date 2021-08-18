@@ -9,8 +9,7 @@ type FileDiff struct {
 	Similarity   int
 }
 
-func (f FileDiff) String() string{
+func (f FileDiff) String() string {
 	return fmt.Sprintf("[FileDiff Status=%s, FromFilePath=%s, ToFilePath=%s, Similarity=%d",
 		f.Status, f.FromFilePath, f.ToFilePath, f.Similarity)
 }
-
