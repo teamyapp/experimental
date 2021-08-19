@@ -1,5 +1,9 @@
 package entity
 
+import (
+	"errors"
+)
+
 type ChangeStatus int
 
 const (
@@ -23,10 +27,21 @@ var changeStatusMap = map[rune]ChangeStatus{
 	'R': ChangeRenamed,
 }
 
-func (c ChangeStatus) String() string {
-	return changeStatusNames[c]
+func (c ChangeStatus) String() (string, error) {
+	statusName, ok := changeStatusNames[c]
+	if !ok {
+		return "Invalid", errors.New("invalid status")
+	}
+
+	return statusName, nil
 }
 
-func NewChangeStatus(statusRune rune) ChangeStatus {
-	return changeStatusMap[statusRune]
+func NewChangeStatus(statusRune rune) (ChangeStatus, error) {
+	status, ok := changeStatusMap[statusRune]
+
+	if !ok {
+		return -1, errors.New("invalid status")
+	}
+
+	return status, nil
 }

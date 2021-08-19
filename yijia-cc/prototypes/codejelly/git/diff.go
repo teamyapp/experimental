@@ -1,22 +1,34 @@
 package git
 
 import (
-	"fmt"
-	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
+	"errors"
+	"log"
 	"strconv"
 	"strings"
+
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
 )
 
 func newFileDiffFromLine(line string) (entity.FileDiff, error) {
+	// throw error:
+	// 		invalid status
+	// 		cannot parse similarity
+	// skip parsing:
+	// 		empty line
+	// 		num of line parts < 2
 	parts := strings.Fields(line)
 	if len(parts) < 2 {
-		return entity.FileDiff{}, fmt.Errorf("line must have at least 2 parts")
+		log.Println("line must have at least 2 parts")
+		return entity.FileDiff{}, nil
 	}
 
-	status := entity.NewChangeStatus(rune(parts[0][0]))
+	status, err := entity.NewChangeStatus(rune(parts[0][0]))
+	if err != nil {
+		return entity.FileDiff{}, errors.New("invalid status")
+	}
+
 	var toFilePath string
 	var similarity int
-	var err error
 	switch status {
 	case entity.ChangeRenamed:
 		similarity, err = strconv.Atoi(parts[0][1:])
@@ -24,8 +36,10 @@ func newFileDiffFromLine(line string) (entity.FileDiff, error) {
 			return entity.FileDiff{}, err
 		}
 		toFilePath = parts[2]
-	default:
+	case entity.ChangeAdded, entity.ChangeDeleted, entity.ChangeModified:
 		toFilePath = parts[1]
+	default:
+		return entity.FileDiff{}, errors.New("invalid status")
 	}
 
 	return entity.FileDiff{
@@ -34,5 +48,4 @@ func newFileDiffFromLine(line string) (entity.FileDiff, error) {
 		ToFilePath:   toFilePath,
 		Similarity:   similarity,
 	}, nil
-
 }
