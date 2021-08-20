@@ -1,8 +1,6 @@
 package git
 
 import (
-	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,76 +11,80 @@ func TestNewFileDiffFromLine(t *testing.T) {
 	testCases := []struct {
 		name string
 		input string
-		expected entity.FileDiff
-		expectedErr error
+		expected entity.FileDiffHeader
+		expectedErr bool
 	} {
 		{
-			name: "Empty line",
+			name: "empty line",
 			input: "",
-			expected: entity.FileDiff{},
-			expectedErr: nil,
+			expected: entity.FileDiffHeader{},
+			expectedErr: false,
 		},
 		{
-			name: "Contains only one part",
-			input: "AAAAAAAAAAA",
-			expected: entity.FileDiff{},
-			expectedErr: nil,
+			name: "contains status only",
+			input: "M",
+			expected: entity.FileDiffHeader{},
+			expectedErr: false,
 		},
 		{
-			name: "Invalid Status",
+			name: "unsupported status",
 			input: "B dashboard/model/db.go",
-			expected: entity.FileDiff{},
-			expectedErr: errors.New("invalid status"),
+			expected: entity.FileDiffHeader{},
+			expectedErr: true,
 		},
 		{
-			name: "Renamed line invalid similarity",
+			name: "similarity not number",
 			input: "RTT    discussion/src/main/java/info/User.java discussion/src/main/java/info/UserModel.java",
-			expected: entity.FileDiff{},
-			expectedErr: errors.New("invalid similarity"),
+			expected: entity.FileDiffHeader{},
+			expectedErr: true,
 		},
 		{
-			name: "Added line",
+			name: "added 1 line",
 			input: "A       dashboard/model/db.go",
-			expected: entity.FileDiff{
+			expected: entity.FileDiffHeader{
+				Id: 0,
 				Status: entity.ChangeAdded,
 				FromFilePath: "dashboard/model/db.go",
 				ToFilePath: "dashboard/model/db.go",
 				Similarity: 0,
 			},
-			expectedErr: nil,
+			expectedErr: false,
 		},
 		{
-			name: "Deleted line",
+			name: "deleted 1 line",
 			input: "D       calendar/repo/schedule.go",
-			expected: entity.FileDiff{
+			expected: entity.FileDiffHeader{
+				Id: 0,
 				Status: entity.ChangeDeleted,
 				FromFilePath: "calendar/repo/schedule.go",
 				ToFilePath: "calendar/repo/schedule.go",
 				Similarity: 0,
 			},
-			expectedErr: nil,
+			expectedErr: false,
 		},
 		{
-			name: "Modified line",
+			name: "modified 1 line",
 			input: "M       discussion/pom.xml",
-			expected: entity.FileDiff{
+			expected: entity.FileDiffHeader{
+				Id: 0,
 				Status: entity.ChangeModified,
 				FromFilePath: "discussion/pom.xml",
 				ToFilePath: "discussion/pom.xml",
 				Similarity: 0,
 			},
-			expectedErr: nil,
+			expectedErr: false,
 		},
 		{
-			name: "Renamed line",
+			name: "renamed a file",
 			input: "R058    discussion/src/main/java/info/User.java discussion/src/main/java/info/UserModel.java",
-			expected: entity.FileDiff{
+			expected: entity.FileDiffHeader{
+				Id: 0,
 				Status: entity.ChangeRenamed,
 				FromFilePath: "discussion/src/main/java/info/User.java",
 				ToFilePath: "discussion/src/main/java/info/UserModel.java",
 				Similarity: 58,
 			},
-			expectedErr: nil,
+			expectedErr: false,
 		},
 	}
 
@@ -90,14 +92,13 @@ func TestNewFileDiffFromLine(t *testing.T) {
 		testCase := testCase
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
-			actual, err := newFileDiffFromLine(testCase.input)
-			fmt.Println(actual)
-			if testCase.expectedErr != nil && err != nil{
+			actual, err := newFileDiffHeaderFromLine(testCase.input, 0)
+			if testCase.expectedErr && err != nil{
 				assert.NotNil(t, err)
 				return
 			}
 
-			if testCase.expectedErr != nil || err != nil {
+			if testCase.expectedErr || err != nil {
 				t.Fail()
 			}
 

@@ -2,6 +2,7 @@ package entity
 
 import (
 	"errors"
+	"log"
 )
 
 type ChangeStatus int
@@ -27,20 +28,20 @@ var changeStatusMap = map[rune]ChangeStatus{
 	'R': ChangeRenamed,
 }
 
-func (c ChangeStatus) String() (string, error) {
+func (c ChangeStatus) String() string {
 	statusName, ok := changeStatusNames[c]
 	if !ok {
-		return "Invalid", errors.New("invalid status")
+		log.Print("change status not found")
+		return ""
 	}
 
-	return statusName, nil
+	return statusName
 }
 
 func NewChangeStatus(statusRune rune) (ChangeStatus, error) {
 	status, ok := changeStatusMap[statusRune]
-
 	if !ok {
-		return -1, errors.New("invalid status")
+		return -1, errors.New("status not found")
 	}
 
 	return status, nil

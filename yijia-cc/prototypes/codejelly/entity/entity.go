@@ -103,17 +103,17 @@ layer 5: render UI at frontend
 
 // layer 1: git diff
 type Line struct {
-	status  LineStatus
-	content string
+	Status  LineStatus
+	Content string
 }
 
 type LineStatus int
 
 const (
-	lUnchanged LineStatus = iota
-	lDeleted
-	lAdded
-	lNothing
+	LineUnchanged LineStatus = iota
+	LineDeleted
+	LineAdded
+	LineNothing
 )
 
 //type Commit struct {
@@ -135,19 +135,13 @@ const (
 
 // layer 2: unorganized hunks
 type Hunk struct {
-	fromFilePath       string
-	toFilePath         string
-	similarity         int
-	renameFromFilePath *string
-	renameToFilePath   *string
 	//index string
+	FromFileStartLine  int
+	FromFileNumOfLines int
+	ToFileStartLine    int
+	ToFileNumOfLines   int
 
-	fromFileStartLine  int
-	fromFileNumOfLines int
-	toFileStartLine    int
-	toFileNumOfLines   int
-
-	lines []Line // - line 16-37, + line 16-33, unchanged
+	Lines []Line // - line 16-37, + line 16-33, unchanged
 }
 
 //layer 3: group unchanged chunks and hunks into file change pair
