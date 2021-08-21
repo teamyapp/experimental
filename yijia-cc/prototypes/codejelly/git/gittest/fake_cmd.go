@@ -13,7 +13,7 @@ type StubCommandExecutor struct {
 	outputMap map[string]string
 }
 
-func (s StubCommandExecutor) Execute(cmd string, args ...string) (string, error){
+func (s StubCommandExecutor) Execute(cmd string, args ...string) (string, error) {
 	// get fromBranch and toBranch names from args
 	branchArgs := args[len(args)-2:]
 	output, ok := s.outputMap[strings.Join(branchArgs, ",")]
@@ -23,8 +23,8 @@ func (s StubCommandExecutor) Execute(cmd string, args ...string) (string, error)
 	return output, nil
 }
 
-func NewStubCommandExecutor(outputMap map[string]string) StubCommandExecutor{
-	return StubCommandExecutor {
+func NewStubCommandExecutor(outputMap map[string]string) StubCommandExecutor {
+	return StubCommandExecutor{
 		outputMap: outputMap,
 	}
 }

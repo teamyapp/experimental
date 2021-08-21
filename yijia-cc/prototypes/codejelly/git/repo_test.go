@@ -1,34 +1,31 @@
 package git_test
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/git"
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/git/gittest"
-	"testing"
 )
 
 var outputMap = map[string]string{
-"feature1,master": "",
-"feature2,master":
-`
+	"feature1,master": "",
+	"feature2,master": `
 A       dashboard/model/event.go
 D       dashboard/seeds/seeder.go
 M       discussion/.gitignore
 R058    discussion/src/main/java/info/User.java discussion/src/main/java/info/UserModel.java`,
-"feature3,master":
-`
+	"feature3,master": `
 
 M       discussion/.gitignore +
 R058    discussion/src/main/java/info/User.java discussion/src/main/java/info/UserModel.java`,
-"master,feature2":
-`
+	"master,feature2": `
 D       dashboard/model/event.go
 A       dashboard/seeds/seeder.go
 M       discussion/.gitignore
 R058    discussion/src/main/java/info/UserModel.java discussion/src/main/java/info/User.java`,
-"feature4,master":
-`
+	"feature4,master": `
 A       dashboard/model/event.go
 B       dashboard/seeds/seeder.go
 M       discussion/.gitignore
@@ -37,17 +34,17 @@ R058    discussion/src/main/java/info/User.java discussion/src/main/java/info/Us
 
 func TestGetFileDiffsBetweenBranches(t *testing.T) {
 	testCases := []struct {
-		name        string
-		fromBranch  string
-		toBranch    string
-		expected    []entity.FileDiffHeader
+		name           string
+		fromBranch     string
+		toBranch       string
+		expected       []entity.FileDiffHeader
 		expectedHasErr bool
 	}{
 		{
-			name:        "no change",
-			fromBranch:  "feature1",
-			toBranch:    "master",
-			expected:    nil,
+			name:           "no change",
+			fromBranch:     "feature1",
+			toBranch:       "master",
+			expected:       nil,
 			expectedHasErr: true,
 		},
 		{
@@ -103,10 +100,10 @@ func TestGetFileDiffsBetweenBranches(t *testing.T) {
 			expectedHasErr: false,
 		},
 		{
-			name:        "command output contains invalid change status",
-			fromBranch:  "feature4",
-			toBranch:    "master",
-			expected:    nil,
+			name:           "command output contains invalid change status",
+			fromBranch:     "feature4",
+			toBranch:       "master",
+			expected:       nil,
 			expectedHasErr: true,
 		},
 		{

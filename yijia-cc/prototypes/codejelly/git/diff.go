@@ -43,4 +43,3 @@ func newFileDiffHeaderFromLine(line string) (entity.FileDiffHeader, error) {
 		Similarity:   similarity,
 	}, nil
 }
-

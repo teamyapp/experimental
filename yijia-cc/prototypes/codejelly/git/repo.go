@@ -9,7 +9,7 @@ import (
 )
 
 type Git struct {
-	repoRootPath        string
+	repoRootPath    string
 	commandExecutor CommandExecutor
 }
 
@@ -24,7 +24,7 @@ func (g Git) GetFileDiffHeadersBetweenBranches(fromBranch string, toBranch strin
 	return g.parseFileDiffHeadersFromOutput(output)
 }
 
-func (g Git) parseFileDiffHeadersFromOutput(output string) ([]entity.FileDiffHeader, error){
+func (g Git) parseFileDiffHeadersFromOutput(output string) ([]entity.FileDiffHeader, error) {
 	if len(output) == 0 {
 		return nil, errors.New("diff is empty")
 	}
@@ -48,7 +48,7 @@ func (g Git) parseFileDiffHeadersFromOutput(output string) ([]entity.FileDiffHea
 	return fileDiffs, nil
 }
 
-func(g Git) GetFileDiffsBetweenBranches(fromBranch string, toBranch string) ([]entity.FileDiff, error) {
+func (g Git) GetFileDiffsBetweenBranches(fromBranch string, toBranch string) ([]entity.FileDiff, error) {
 	output, err := g.executeGitCommand("diff", fromBranch, toBranch)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func(g Git) GetFileDiffsBetweenBranches(fromBranch string, toBranch string) ([]e
 	return g.parseFileDiffsFromOutput(output)
 }
 
-func (g Git) parseFileDiffsFromOutput(output string) ([]entity.FileDiff, error){
+func (g Git) parseFileDiffsFromOutput(output string) ([]entity.FileDiff, error) {
 	if len(output) == 0 {
 		return nil, errors.New("diff is empty")
 	}
@@ -83,7 +83,6 @@ func (g Git) parseFileDiffsFromOutput(output string) ([]entity.FileDiff, error){
 	return fileDiffs, nil
 }
 
-
 func (g Git) executeGitCommand(args ...string) (string, error) {
 	return g.commandExecutor.Execute("git", args...)
 }
@@ -95,6 +94,6 @@ func NewGit(repoRootPath string) Git {
 func NewGitCustomExecutor(commandExecutor CommandExecutor, repoRootPath string) Git {
 	return Git{
 		commandExecutor: commandExecutor,
-		repoRootPath:        repoRootPath,
+		repoRootPath:    repoRootPath,
 	}
 }
