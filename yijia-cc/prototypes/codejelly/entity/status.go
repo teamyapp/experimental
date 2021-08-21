@@ -1,5 +1,10 @@
 package entity
 
+import (
+	"errors"
+	"fmt"
+)
+
 type ChangeStatus int
 
 const (
@@ -24,9 +29,20 @@ var changeStatusMap = map[rune]ChangeStatus{
 }
 
 func (c ChangeStatus) String() string {
-	return changeStatusNames[c]
+	statusName, ok := changeStatusNames[c]
+	if !ok {
+		fmt.Println("change status not found")
+		return "unknown"
+	}
+
+	return statusName
 }
 
-func NewChangeStatus(statusRune rune) ChangeStatus {
-	return changeStatusMap[statusRune]
+func NewChangeStatus(statusRune rune) (ChangeStatus, error) {
+	status, ok := changeStatusMap[statusRune]
+	if !ok {
+		return -1, errors.New("status not found")
+	}
+
+	return status, nil
 }

@@ -1,38 +1,45 @@
 package git
 
 import (
+	"errors"
 	"fmt"
-	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
 	"strconv"
 	"strings"
+
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
 )
 
-func newFileDiffFromLine(line string) (entity.FileDiff, error) {
+func newFileDiffHeaderFromLine(line string) (entity.FileDiffHeader, error) {
 	parts := strings.Fields(line)
 	if len(parts) < 2 {
-		return entity.FileDiff{}, fmt.Errorf("line must have at least 2 parts")
+		fmt.Println("line must have at least 2 parts")
+		return entity.FileDiffHeader{}, nil
 	}
 
-	status := entity.NewChangeStatus(rune(parts[0][0]))
+	status, err := entity.NewChangeStatus(rune(parts[0][0]))
+	if err != nil {
+		return entity.FileDiffHeader{}, err
+	}
+
 	var toFilePath string
 	var similarity int
-	var err error
 	switch status {
 	case entity.ChangeRenamed:
 		similarity, err = strconv.Atoi(parts[0][1:])
 		if err != nil {
-			return entity.FileDiff{}, err
+			return entity.FileDiffHeader{}, err
 		}
 		toFilePath = parts[2]
-	default:
+	case entity.ChangeAdded, entity.ChangeDeleted, entity.ChangeModified:
 		toFilePath = parts[1]
+	default:
+		return entity.FileDiffHeader{}, errors.New("invalid status")
 	}
 
-	return entity.FileDiff{
+	return entity.FileDiffHeader{
 		Status:       status,
 		FromFilePath: parts[1],
 		ToFilePath:   toFilePath,
 		Similarity:   similarity,
 	}, nil
-
 }
