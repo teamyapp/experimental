@@ -41,14 +41,14 @@ func TestGetFileDiffsBetweenBranches(t *testing.T) {
 		fromBranch  string
 		toBranch    string
 		expected    []entity.FileDiffHeader
-		expectedErr bool
+		expectedHasErr bool
 	}{
 		{
 			name:        "no change",
 			fromBranch:  "feature1",
 			toBranch:    "master",
 			expected:    nil,
-			expectedErr: true,
+			expectedHasErr: true,
 		},
 		{
 			name:       "valid command output",
@@ -56,35 +56,31 @@ func TestGetFileDiffsBetweenBranches(t *testing.T) {
 			toBranch:   "master",
 			expected: []entity.FileDiffHeader{
 				{
-					Id: 0,
 					Status:       entity.ChangeAdded,
 					FromFilePath: "dashboard/model/event.go",
 					ToFilePath:   "dashboard/model/event.go",
 					Similarity:   0,
 				},
 				{
-					Id: 1,
 					Status:       entity.ChangeDeleted,
 					FromFilePath: "dashboard/seeds/seeder.go",
 					ToFilePath:   "dashboard/seeds/seeder.go",
 					Similarity:   0,
 				},
 				{
-					Id: 2,
 					Status:       entity.ChangeModified,
 					FromFilePath: "discussion/.gitignore",
 					ToFilePath:   "discussion/.gitignore",
 					Similarity:   0,
 				},
 				{
-					Id: 3,
 					Status:       entity.ChangeRenamed,
 					FromFilePath: "discussion/src/main/java/info/User.java",
 					ToFilePath:   "discussion/src/main/java/info/UserModel.java",
 					Similarity:   58,
 				},
 			},
-			expectedErr: false,
+			expectedHasErr: false,
 		},
 		{
 			name:       "contains empty line",
@@ -92,28 +88,26 @@ func TestGetFileDiffsBetweenBranches(t *testing.T) {
 			toBranch:   "master",
 			expected: []entity.FileDiffHeader{
 				{
-					Id: 0,
 					Status:       entity.ChangeModified,
 					FromFilePath: "discussion/.gitignore",
 					ToFilePath:   "discussion/.gitignore",
 					Similarity:   0,
 				},
 				{
-					Id: 1,
 					Status:       entity.ChangeRenamed,
 					FromFilePath: "discussion/src/main/java/info/User.java",
 					ToFilePath:   "discussion/src/main/java/info/UserModel.java",
 					Similarity:   58,
 				},
 			},
-			expectedErr: false,
+			expectedHasErr: false,
 		},
 		{
 			name:        "command output contains invalid change status",
 			fromBranch:  "feature4",
 			toBranch:    "master",
 			expected:    nil,
-			expectedErr: true,
+			expectedHasErr: true,
 		},
 		{
 			name:       "switch fromBranch and toBranch",
@@ -121,35 +115,31 @@ func TestGetFileDiffsBetweenBranches(t *testing.T) {
 			toBranch:   "feature2",
 			expected: []entity.FileDiffHeader{
 				{
-					Id: 0,
 					Status:       entity.ChangeDeleted,
 					FromFilePath: "dashboard/model/event.go",
 					ToFilePath:   "dashboard/model/event.go",
 					Similarity:   0,
 				},
 				{
-					Id: 1,
 					Status:       entity.ChangeAdded,
 					FromFilePath: "dashboard/seeds/seeder.go",
 					ToFilePath:   "dashboard/seeds/seeder.go",
 					Similarity:   0,
 				},
 				{
-					Id: 2,
 					Status:       entity.ChangeModified,
 					FromFilePath: "discussion/.gitignore",
 					ToFilePath:   "discussion/.gitignore",
 					Similarity:   0,
 				},
 				{
-					Id: 3,
 					Status:       entity.ChangeRenamed,
 					FromFilePath: "discussion/src/main/java/info/UserModel.java",
 					ToFilePath:   "discussion/src/main/java/info/User.java",
 					Similarity:   58,
 				},
 			},
-			expectedErr: false,
+			expectedHasErr: false,
 		},
 	}
 
@@ -160,14 +150,13 @@ func TestGetFileDiffsBetweenBranches(t *testing.T) {
 			stubCommandExecutor := gittest.NewStubCommandExecutor(outputMap)
 			repo := git.NewGitCustomExecutor(stubCommandExecutor, "/repo/")
 			actual, err := repo.GetFileDiffHeadersBetweenBranches(testCase.fromBranch, testCase.toBranch)
-			if testCase.expectedErr && err != nil {
+			if testCase.expectedHasErr {
 				assert.NotNil(t, err)
 				return
+			} else {
+				assert.NoError(t, err)
 			}
 
-			if testCase.expectedErr || err != nil {
-				t.Fail()
-			}
 			assert.Equal(t, testCase.expected, actual)
 		})
 	}

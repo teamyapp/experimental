@@ -2,10 +2,10 @@ package git
 
 import (
 	"errors"
-	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/vcs"
 	"strings"
 
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/vcs"
 )
 
 type Git struct {

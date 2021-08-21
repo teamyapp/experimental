@@ -3,7 +3,6 @@ package entity
 import "fmt"
 
 type FileDiffHeader struct {
-	Id int
 	Status       ChangeStatus
 	FromFilePath string
 	ToFilePath   string

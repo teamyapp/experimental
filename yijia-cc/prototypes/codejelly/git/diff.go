@@ -2,17 +2,17 @@ package git
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
 )
 
-func newFileDiffHeaderFromLine(line string, index int) (entity.FileDiffHeader, error) {
+func newFileDiffHeaderFromLine(line string) (entity.FileDiffHeader, error) {
 	parts := strings.Fields(line)
 	if len(parts) < 2 {
-		log.Println("line must have at least 2 parts")
+		fmt.Println("line must have at least 2 parts")
 		return entity.FileDiffHeader{}, nil
 	}
 
@@ -37,7 +37,6 @@ func newFileDiffHeaderFromLine(line string, index int) (entity.FileDiffHeader, e
 	}
 
 	return entity.FileDiffHeader{
-		Id:           index,
 		Status:       status,
 		FromFilePath: parts[1],
 		ToFilePath:   toFilePath,

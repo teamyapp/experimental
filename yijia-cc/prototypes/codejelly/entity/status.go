@@ -2,7 +2,7 @@ package entity
 
 import (
 	"errors"
-	"log"
+	"fmt"
 )
 
 type ChangeStatus int
@@ -31,8 +31,8 @@ var changeStatusMap = map[rune]ChangeStatus{
 func (c ChangeStatus) String() string {
 	statusName, ok := changeStatusNames[c]
 	if !ok {
-		log.Print("change status not found")
-		return ""
+		fmt.Println("change status not found")
+		return "unknown"
 	}
 
 	return statusName
