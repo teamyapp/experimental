@@ -15,6 +15,6 @@ func (f FileDiffHeader) String() string {
 }
 
 type FileDiff struct {
-	FileDiffHeaderId int
+	FileDiffHeader
 	Hunks []Hunk
 }
