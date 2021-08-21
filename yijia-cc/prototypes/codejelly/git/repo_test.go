@@ -154,7 +154,7 @@ func TestGetFileDiffsBetweenBranches(t *testing.T) {
 				assert.NotNil(t, err)
 				return
 			} else {
-				assert.NoError(t, err)
+				assert.Nil(t, err)
 			}
 
 			assert.Equal(t, testCase.expected, actual)
