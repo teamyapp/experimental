@@ -3,8 +3,6 @@ package git
 import (
 	"errors"
 	"fmt"
-	"regexp"
-
 	"strconv"
 	"strings"
 
@@ -46,38 +44,35 @@ func newFileDiffHeaderFromLine(line string) (entity.FileDiffHeader, error) {
 	}, nil
 }
 
-// TODO: add example
+
 //var filePathPattern = regexp.MustCompile("(/)+[a-zA-Z0-9\\\\-_/ ]*(.)")
+const (
+	// e.g. "@@ -17,2 +11,3 @@"
+	lineChangeStatPrefix string = "@@"
+	// e.g. "index 0000000..edc67e8 "
+	indexPrefix string = "index"
+	// e.g. "similarity index 58%"
+	similarityPrefix string = "similarity"
+	// e.g. "rename from discussion/src/main/java/info/grouplive/discussion/model/User.java"
+	renameFromPrefix string = "rename from"
+	// e.g. "rename to discussion/src/main/java/info/grouplive/discussion/model/UserModel.java"
+	renameToPrefix string = "rename to"
+	// e.g. "--- /dev/null"
+	oldFilePathPrefix string = "--- "
+	// e.g. "+++ b/calendar/repo/reservation.go"
+	newFilePathPrefix string = "+++ "
+	// e.g. "\ No newline at end of file"
+	noNewLinePrefix string = "\\ No newline at end of file"
 
-// e.g. "@@ -17,2 +11,3 @@"
-var lineChangeStatPattern = regexp.MustCompile("^@@*")
-
-// e.g. "index 0000000..edc67e8 "
-var indexPattern = regexp.MustCompile("^index*")
-
-// e.g. "similarity index 58%"
-var similarityPattern = regexp.MustCompile("^similarity")
-
-// e.g. "rename from discussion/src/main/java/info/grouplive/discussion/model/User.java"
-var renameFromPattern = regexp.MustCompile("^rename from")
-
-// e.g. "rename to discussion/src/main/java/info/grouplive/discussion/model/UserModel.java"
-var renameToPattern = regexp.MustCompile("^rename to")
-
-// e.g. "\ No newline at end of file"
-var noNewLinePattern = regexp.MustCompile("\\ No newline at end of file")
-
-// e.g. "     public UserDetails loadUserByUsername(String username) {"
-var noChangeLinePattern = regexp.MustCompile("^ ")
-
-// e.g. "+        UserModel user = userOptional"
-var addedLinePattern = regexp.MustCompile("^+")
-
-// e.g. "-        User user = userOptional"
-var deletedLinePattern = regexp.MustCompile("^-")
-
-// e.g. "Binary files /dev/null and b/discussion/dependencies/proto-1.0-SNAPSHOT.jar differ"
-var binaryFilePattern = regexp.MustCompile("^Binary")
+	// e.g. "     public UserDetails loadUserByUsername(String username) {"
+	noChangeLinePrefix string = " "
+	// e.g. "+        UserModel user = userOptional"
+	addedLinePrefix string = "+"
+	// e.g. "-        User user = userOptional"
+	deletedLinePrefix string = "-"
+	// e.g. "Binary files /dev/null and b/discussion/dependencies/proto-1.0-SNAPSHOT.jar differ"
+	binaryFilePrefix string = "Binary"
+)
 
 func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 	if len(block) == 0 {
@@ -103,11 +98,11 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 			continue
 		}
 
-		if noNewLinePattern.MatchString(line) || indexPattern.MatchString(line){
+		if strings.HasPrefix(line, noNewLinePrefix) || strings.HasPrefix(line, indexPrefix) {
 			continue
 		}
 
-		if lineChangeStatPattern.MatchString(line) {
+		if strings.HasPrefix(line, lineChangeStatPrefix) {
 			if hunkCounter != 0 {
 				hunks = append(hunks, entity.Hunk {
 					FromFileStartLine: fromFileStartLine,
@@ -126,17 +121,22 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 
 			hunkCounter += 1
 			hunkLines = make([]entity.Line, 0)
-		} else if noChangeLinePattern.MatchString(line){
+			hunkLines = append(hunkLines, entity.Line{
+				Status: entity.LineHunkHeader,
+				Content: line,
+			})
+
+		} else if strings.HasPrefix(line, noChangeLinePrefix){
 			hunkLines = append(hunkLines, entity.Line{
 				Status: entity.LineUnchanged,
 				Content: line,
 			})
-		} else if deletedLinePattern.MatchString(line) {
+		} else if strings.HasPrefix(line, deletedLinePrefix){
 			hunkLines = append(hunkLines, entity.Line{
 				Status: entity.LineDeleted,
 				Content: line,
 			})
-		} else if addedLinePattern.MatchString(line) {
+		} else if strings.HasPrefix(line, addedLinePrefix){
 			hunkLines = append(hunkLines, entity.Line{
 				Status: entity.LineAdded,
 				Content: line,
@@ -179,16 +179,16 @@ func newFileDiffHeaderFromBlock(block string) (entity.FileDiffHeader, error) {
 			continue
 		}
 
-		if similarityPattern.MatchString(line) {
+		if strings.HasPrefix(line, similarityPrefix) {
 			similarity, err = parseSimilarityFromLine(line)
 			if err != nil {
 				return entity.FileDiffHeader{}, err
 			}
-		} else if  renameFromPattern.MatchString(line) || line[:4] == "--- "{
+		} else if strings.HasPrefix(line, renameFromPrefix) || strings.HasPrefix(line, oldFilePathPrefix){
 			fromFilePath = parseFileNameFromLine(line)
-		} else if renameToPattern.MatchString(line) || line[:4] == "+++ " {
+		} else if strings.HasPrefix(line, renameToPrefix) || strings.HasPrefix(line, newFilePathPrefix){
 			toFilePath = parseFileNameFromLine(line)
-		} else if binaryFilePattern.MatchString(line) {
+		} else if strings.HasPrefix(line, binaryFilePrefix) {
 			lineParts := strings.Fields(line)
 			fromFilePath = trimFileName(lineParts[2])
 			toFilePath = trimFileName(lineParts[4])

@@ -246,6 +246,10 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 
 							Lines: []entity.Line{
 								{
+									Status: entity.LineHunkHeader,
+									Content: "@@ -9,7 +9,8 @@ import info.grouplive.discussion.exceptions.PostNotFoundException;",
+								},
+								{
 									Status:  entity.LineUnchanged,
 									Content: " import info.grouplive.discussion.mapper.CommentMapper;",
 								},
@@ -274,6 +278,10 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 							ToFileNumOfLines:   7,
 
 							Lines: []entity.Line{
+								{
+									Status: entity.LineHunkHeader,
+									Content: "@@ -52,7 +45,7 @@ public class CommentService {",
+								},
 								{
 									Status:  entity.LineUnchanged,
 									Content: "     }",
@@ -325,6 +333,10 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 							ToFileNumOfLines:   1,
 
 							Lines: []entity.Line{
+								{
+									Status: entity.LineHunkHeader,
+									Content: "@@ -0,0 +1 @@",
+								},
 								{
 									Status:  entity.LineAdded,
 									Content: "+REACT_APP_AUTH_API_BASE_URL=http://auth.api.staging.allgame.fun",

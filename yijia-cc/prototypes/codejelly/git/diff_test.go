@@ -134,6 +134,10 @@ index 0000000..edc67e8
 
 					Lines: []entity.Line{
 						{
+							Status: entity.LineHunkHeader,
+							Content: "@@ -0,0 +1 @@",
+						},
+						{
 							Status: entity.LineAdded,
 							Content: "+REACT_APP_AUTH_API_BASE_URL=http://auth.api.staging.allgame.fun",
 						},
@@ -160,6 +164,10 @@ index 345e6ae..0000000
 					ToFileNumOfLines: 0,
 
 					Lines: []entity.Line{
+						{
+							Status: entity.LineHunkHeader,
+							Content: "@@ -1 +0,0 @@",
+						},
 						{
 							Status: entity.LineDeleted,
 							Content: "-Test",
@@ -213,6 +221,10 @@ index 3d739dc..40b8555 100644
 
 					Lines: []entity.Line{
 						{
+							Status: entity.LineHunkHeader,
+							Content: "@@ -9,7 +9,8 @@ import info.grouplive.discussion.exceptions.PostNotFoundException;",
+						},
+						{
 							Status:  entity.LineUnchanged,
 							Content: " import info.grouplive.discussion.mapper.CommentMapper;",
 						},
@@ -241,6 +253,10 @@ index 3d739dc..40b8555 100644
 					ToFileNumOfLines:   7,
 
 					Lines: []entity.Line{
+						{
+							Status: entity.LineHunkHeader,
+							Content: "@@ -52,7 +45,7 @@ public class CommentService {",
+						},
 						{
 							Status:  entity.LineUnchanged,
 							Content: "     }",
@@ -505,6 +521,10 @@ index 3d739dc..40b8555 100644
 
 						Lines: []entity.Line{
 							{
+								Status: entity.LineHunkHeader,
+								Content: "@@ -9,7 +9,8 @@ import info.grouplive.discussion.exceptions.PostNotFoundException;",
+							},
+							{
 								Status:  entity.LineUnchanged,
 								Content: " import info.grouplive.discussion.mapper.CommentMapper;",
 							},
@@ -533,6 +553,10 @@ index 3d739dc..40b8555 100644
 						ToFileNumOfLines:   7,
 
 						Lines: []entity.Line{
+							{
+								Status: entity.LineHunkHeader,
+								Content: "@@ -52,7 +45,7 @@ public class CommentService {",
+							},
 							{
 								Status:  entity.LineUnchanged,
 								Content: "     }",

@@ -107,15 +107,6 @@ type Line struct {
 	Content string
 }
 
-type LineStatus int
-
-const (
-	LineUnchanged LineStatus = iota
-	LineDeleted
-	LineAdded
-	LineNothing
-)
-
 //type Commit struct {
 //	id           int
 //	message      string
