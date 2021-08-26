@@ -58,6 +58,8 @@ Binary files a/src/main/resources/static/img/avatar.png and b/src/main/resources
 }
 
 var fileDiffHeaderOutputMap = map[string]string{
+
+
 	"feature1,master": "",
 	"feature2,master": `
 A       dashboard/model/event.go
@@ -192,6 +194,7 @@ func TestGetFileDiffHeadersBetweenBranches(t *testing.T) {
 		testCase := testCase
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
+
 			stubCommandExecutor := gittest.NewStubCommandExecutor(fileDiffHeaderOutputMap)
 			repo := git.NewRepositoryDeps(stubCommandExecutor, "/repo/")
 			actual, err := repo.GetFileDiffHeadersBetweenBranches(testCase.fromBranch, testCase.toBranch)
@@ -415,3 +418,4 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 		})
 	}
 }
+

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+
 	"strconv"
 	"strings"
 
@@ -204,5 +205,6 @@ func newFileDiffFromBlock(block string) (entity.FileDiff, error) {
 		FileDiffHeader: fileDiffHeader,
 		Hunks:            hunks,
 	}, nil
+
 }
 
