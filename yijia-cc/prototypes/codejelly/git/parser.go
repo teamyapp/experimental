@@ -34,7 +34,7 @@ func parseSimilarityFromLine(line string) (int, error) {
 	return num, nil
 }
 
-func parseLineIntoStatString (line string) (int, int, int, int, error) {
+func parseLineIntoStatString (line string) (entity.HunkHeader, error) {
 	// line example: "@@ -17,6 +16,7 @@ type Calendar struct {"
 	// return: 17, 6, 16, 7
 
@@ -61,14 +61,29 @@ func parseLineIntoStatString (line string) (int, int, int, int, error) {
 
 	fromFileStartLine, fromFileNumOfLines, err := parseLineStatsFromStatString(fromFileStatString)
 	if err != nil {
-		return -1, -1, -1, -1, err
+		return entity.HunkHeader{
+			FromFileStartLine: -1,
+			FromFileNumOfLines: -1,
+			ToFileStartLine: -1,
+			ToFileNumOfLines: -1,
+		}, err
 	}
 	toFileStartLine, toFileNumOfLines, err := parseLineStatsFromStatString(toFileStatString)
 	if err != nil {
-		return -1, -1, -1, -1, err
+		return entity.HunkHeader{
+			FromFileStartLine: -1,
+			FromFileNumOfLines: -1,
+			ToFileStartLine: -1,
+			ToFileNumOfLines: -1,
+		}, err
 	}
 
-	return fromFileStartLine, fromFileNumOfLines, toFileStartLine, toFileNumOfLines, nil
+	return entity.HunkHeader{
+		FromFileStartLine: fromFileStartLine,
+		FromFileNumOfLines: fromFileNumOfLines,
+		ToFileStartLine: toFileStartLine,
+		ToFileNumOfLines: toFileNumOfLines,
+	}, err
 }
 
 func parseLineStatsFromStatString (statString string) (int, int, error) {

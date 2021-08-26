@@ -239,10 +239,12 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 					},
 					Hunks: []entity.Hunk{
 						{
-							FromFileStartLine:  9,
-							FromFileNumOfLines: 7,
-							ToFileStartLine:    9,
-							ToFileNumOfLines:   8,
+							HunkHeader: entity.HunkHeader{
+								FromFileStartLine:  9,
+								FromFileNumOfLines: 7,
+								ToFileStartLine:    9,
+								ToFileNumOfLines:   8,
+							},
 
 							Lines: []entity.Line{
 								{
@@ -272,10 +274,12 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 							},
 						},
 						{
-							FromFileStartLine:  52,
-							FromFileNumOfLines: 7,
-							ToFileStartLine:    45,
-							ToFileNumOfLines:   7,
+							HunkHeader: entity.HunkHeader{
+								FromFileStartLine:  52,
+								FromFileNumOfLines: 7,
+								ToFileStartLine:    45,
+								ToFileNumOfLines:   7,
+							},
 
 							Lines: []entity.Line{
 								{
@@ -327,10 +331,12 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 					},
 					Hunks: []entity.Hunk{
 						{
-							FromFileStartLine:  0,
-							FromFileNumOfLines: 0,
-							ToFileStartLine:    1,
-							ToFileNumOfLines:   1,
+							HunkHeader: entity.HunkHeader{
+								FromFileStartLine:  0,
+								FromFileNumOfLines: 0,
+								ToFileStartLine:    1,
+								ToFileNumOfLines:   1,
+							},
 
 							Lines: []entity.Line{
 								{

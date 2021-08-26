@@ -124,16 +124,7 @@ type Line struct {
 //	comments          []Comment
 //}
 
-// layer 2: unorganized hunks
-type Hunk struct {
-	//index string
-	FromFileStartLine  int
-	FromFileNumOfLines int
-	ToFileStartLine    int
-	ToFileNumOfLines   int
 
-	Lines []Line // - line 16-37, + line 16-33, unchanged
-}
 
 //layer 3: group unchanged chunks and hunks into file change pair
 type DiffLine struct {

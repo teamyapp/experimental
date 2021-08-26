@@ -127,11 +127,12 @@ index 0000000..edc67e8
 \ No newline at end of file`,
 			expected: []entity.Hunk{
 				{
-					FromFileStartLine: 0,
-					FromFileNumOfLines: 0,
-					ToFileStartLine: 1,
-					ToFileNumOfLines: 1,
-
+					HunkHeader: entity.HunkHeader{
+						FromFileStartLine: 0,
+						FromFileNumOfLines: 0,
+						ToFileStartLine: 1,
+						ToFileNumOfLines: 1,
+					},
 					Lines: []entity.Line{
 						{
 							Status: entity.LineHunkHeader,
@@ -158,11 +159,12 @@ index 345e6ae..0000000
 -Test`,
 			expected: []entity.Hunk{
 				{
-					FromFileStartLine: 1,
-					FromFileNumOfLines: 1,
-					ToFileStartLine: 0,
-					ToFileNumOfLines: 0,
-
+					HunkHeader: entity.HunkHeader{
+						FromFileStartLine: 1,
+						FromFileNumOfLines: 1,
+						ToFileStartLine: 0,
+						ToFileNumOfLines: 0,
+					},
 					Lines: []entity.Line{
 						{
 							Status: entity.LineHunkHeader,
@@ -214,10 +216,12 @@ index 3d739dc..40b8555 100644
                  .stream()`,
 			expected: []entity.Hunk{
 				{
-					FromFileStartLine:  9,
-					FromFileNumOfLines: 7,
-					ToFileStartLine:    9,
-					ToFileNumOfLines:   8,
+					HunkHeader: entity.HunkHeader{
+						FromFileStartLine:  9,
+						FromFileNumOfLines: 7,
+						ToFileStartLine:    9,
+						ToFileNumOfLines:   8,
+					},
 
 					Lines: []entity.Line{
 						{
@@ -247,10 +251,12 @@ index 3d739dc..40b8555 100644
 					},
 				},
 				{
-					FromFileStartLine:  52,
-					FromFileNumOfLines: 7,
-					ToFileStartLine:    45,
-					ToFileNumOfLines:   7,
+					HunkHeader: entity.HunkHeader{
+						FromFileStartLine:  52,
+						FromFileNumOfLines: 7,
+						ToFileStartLine:    45,
+						ToFileNumOfLines:   7,
+					},
 
 					Lines: []entity.Line{
 						{
@@ -514,10 +520,12 @@ index 3d739dc..40b8555 100644
 				},
 				Hunks: []entity.Hunk{
 					{
-						FromFileStartLine:  9,
-						FromFileNumOfLines: 7,
-						ToFileStartLine:    9,
-						ToFileNumOfLines:   8,
+						HunkHeader: entity.HunkHeader{
+							FromFileStartLine:  9,
+							FromFileNumOfLines: 7,
+							ToFileStartLine:    9,
+							ToFileNumOfLines:   8,
+						},
 
 						Lines: []entity.Line{
 							{
@@ -547,10 +555,12 @@ index 3d739dc..40b8555 100644
 						},
 					},
 					{
-						FromFileStartLine:  52,
-						FromFileNumOfLines: 7,
-						ToFileStartLine:    45,
-						ToFileNumOfLines:   7,
+						HunkHeader: entity.HunkHeader{
+							FromFileStartLine:  52,
+							FromFileNumOfLines: 7,
+							ToFileStartLine:    45,
+							ToFileNumOfLines:   7,
+						},
 
 						Lines: []entity.Line{
 							{

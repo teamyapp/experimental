@@ -64,14 +64,16 @@ const (
 	// e.g. "\ No newline at end of file"
 	noNewLinePrefix string = "\\ No newline at end of file"
 
+	// e.g. "Binary files /dev/null and b/discussion/dependencies/proto-1.0-SNAPSHOT.jar differ"
+	binaryFilePrefix string = "Binary"
+
+	// unchanged line starts with an empty space
 	// e.g. "     public UserDetails loadUserByUsername(String username) {"
 	noChangeLinePrefix string = " "
 	// e.g. "+        UserModel user = userOptional"
 	addedLinePrefix string = "+"
 	// e.g. "-        User user = userOptional"
 	deletedLinePrefix string = "-"
-	// e.g. "Binary files /dev/null and b/discussion/dependencies/proto-1.0-SNAPSHOT.jar differ"
-	binaryFilePrefix string = "Binary"
 )
 
 func newHunkFromBlock(block string) ([]entity.Hunk, error) {
@@ -87,10 +89,7 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 	hunks := make([]entity.Hunk, 0)
 	hunkLines := make([]entity.Line, 0)
 
-	var fromFileStartLine int
-	var fromFileNumOfLines int
-	var toFileStartLine    int
-	var toFileNumOfLines   int
+	var hunkHeader entity.HunkHeader
 	var err error
 
 	for index, line := range lines {
@@ -98,23 +97,16 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 			continue
 		}
 
-		if strings.HasPrefix(line, noNewLinePrefix) || strings.HasPrefix(line, indexPrefix) {
+		// index info is not needed, hence it is skipped
+		if strings.HasPrefix(line, noNewLinePrefix) ||
+			strings.HasPrefix(line, indexPrefix) {
 			continue
 		}
 
 		if strings.HasPrefix(line, lineChangeStatPrefix) {
-			if hunkCounter != 0 {
-				hunks = append(hunks, entity.Hunk {
-					FromFileStartLine: fromFileStartLine,
-					FromFileNumOfLines: fromFileNumOfLines,
-					ToFileStartLine: toFileStartLine,
-					ToFileNumOfLines: toFileNumOfLines,
+			hunks = tryAddPrevHunk(hunkCounter, hunks, hunkHeader, hunkLines)
 
-					Lines: append([]entity.Line(nil), hunkLines...),
-				})
-			}
-
-			fromFileStartLine, fromFileNumOfLines, toFileStartLine, toFileNumOfLines, err = parseLineIntoStatString(line)
+			hunkHeader, err = parseLineIntoStatString(line)
 			if err != nil {
 				return nil, err
 			}
@@ -144,16 +136,7 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 		}
 	}
 
-	if hunkCounter != 0 {
-		hunks = append(hunks, entity.Hunk {
-			FromFileStartLine: fromFileStartLine,
-			FromFileNumOfLines: fromFileNumOfLines,
-			ToFileStartLine: toFileStartLine,
-			ToFileNumOfLines: toFileNumOfLines,
-
-			Lines: append([]entity.Line(nil), hunkLines...),
-		})
-	}
+	hunks = tryAddPrevHunk(hunkCounter, hunks, hunkHeader, hunkLines)
 
 	return hunks, nil
 }
@@ -175,7 +158,6 @@ func newFileDiffHeaderFromBlock(block string) (entity.FileDiffHeader, error) {
 
 	for _, line := range lines {
 		if len(line) <= 4 {
-			//fmt.Println("line is not valid")
 			continue
 		}
 
@@ -225,6 +207,20 @@ func newFileDiffFromBlock(block string) (entity.FileDiff, error) {
 		FileDiffHeader: fileDiffHeader,
 		Hunks:            hunks,
 	}, nil
+}
 
+func tryAddPrevHunk(
+	hunkCounter int,
+	hunks []entity.Hunk,
+	hunkHeader entity.HunkHeader,
+	hunkLines []entity.Line) []entity.Hunk{
+	if hunkCounter == 0 {
+		return hunks
+	}
+
+	return append(hunks, entity.Hunk {
+		HunkHeader: hunkHeader,
+		Lines: append([]entity.Line(nil), hunkLines...),
+	})
 }
 
