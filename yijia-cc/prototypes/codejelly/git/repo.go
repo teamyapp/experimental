@@ -17,6 +17,7 @@ var _ vcs.Repository = (*Repository)(nil)
 
 func (r Repository) GetFileDiffHeadersBetweenBranches(fromBranch string, toBranch string) ([]entity.FileDiffHeader, error) {
 	output, err := r.executeGitCommand("diff", "--name-status", fromBranch, toBranch)
+
 	if err != nil {
 		return nil, err
 	}
@@ -76,6 +77,7 @@ func (r Repository) parseFileDiffsFromOutput(output string) ([]entity.FileDiff, 
 		}
 
 		fileDiff, err := newFileDiffFromBlock(block)
+
 		if err != nil {
 			return nil, err
 		}
