@@ -47,15 +47,35 @@ func newFileDiffHeaderFromLine(line string) (entity.FileDiffHeader, error) {
 
 // TODO: add example
 //var filePathPattern = regexp.MustCompile("(/)+[a-zA-Z0-9\\\\-_/ ]*(.)")
+
+// e.g. "@@ -17,2 +11,3 @@"
 var lineChangeStatPattern = regexp.MustCompile("^@@*")
+
+// e.g. "index 0000000..edc67e8 "
 var indexPattern = regexp.MustCompile("^index*")
+
+// e.g. "similarity index 58%"
 var similarityPattern = regexp.MustCompile("^similarity")
+
+// e.g. "rename from discussion/src/main/java/info/grouplive/discussion/model/User.java"
 var renameFromPattern = regexp.MustCompile("^rename from")
+
+// e.g. "rename to discussion/src/main/java/info/grouplive/discussion/model/UserModel.java"
 var renameToPattern = regexp.MustCompile("^rename to")
+
+// e.g. "\ No newline at end of file"
 var noNewLinePattern = regexp.MustCompile("\\ No newline at end of file")
+
+// e.g. "     public UserDetails loadUserByUsername(String username) {"
 var noChangeLinePattern = regexp.MustCompile("^ ")
+
+// e.g. "+        UserModel user = userOptional"
 var addedLinePattern = regexp.MustCompile("^+")
+
+// e.g. "-        User user = userOptional"
 var deletedLinePattern = regexp.MustCompile("^-")
+
+// e.g. "Binary files /dev/null and b/discussion/dependencies/proto-1.0-SNAPSHOT.jar differ"
 var binaryFilePattern = regexp.MustCompile("^Binary")
 
 func newHunkFromBlock(block string) ([]entity.Hunk, error) {
