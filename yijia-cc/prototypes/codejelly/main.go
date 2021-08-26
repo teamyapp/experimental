@@ -7,15 +7,24 @@ import (
 )
 
 func main() {
-	g := git.NewGit("/Users/yijiacc/Documents/projects/laiprojects/grouplive")
-	fileHeaders, err := g.GetFileDiffHeadersBetweenBranches("yijia-cc/feature-find-amenity-type", "master")
-	fmt.Println(err)
+	g := git.NewRepo("/Users/yijiacc/Documents/projects/laiprojects/grouplive")
+	fileDiffHeaders, err := g.GetFileDiffHeadersBetweenBranches("yijia-cc/feature-find-amenity-type", "master")
+
 	if err != nil {
 		panic(err)
 	}
 
-	for _, fileHeader := range fileHeaders {
-		fmt.Println(fileHeader)
-	}
-	fmt.Println(fileHeaders)
+	fileDiff, err := g.GetFileDiffsBetweenBranches("yijia-cc/feature-find-amenity-type", "master")
+	fmt.Println(len(fileDiffHeaders), len(fileDiff))
+	fmt.Println(fileDiff[1].FileDiffHeader)
+
+	hunks := fileDiff[11].Hunks
+	for _, hunk := range hunks {
+		lines := hunk.Lines
+		fmt.Println(lines)
+		//for _, _ := range lines {
+		//	//fmt.Print("Line Status: ", line.Status)
+		//	//fmt.Println(". Line Content: ", line.Content)
+		//}
+ 	}
 }
