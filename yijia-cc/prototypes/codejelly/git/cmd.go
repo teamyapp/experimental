@@ -1,6 +1,9 @@
 package git
 
-import "os/exec"
+import (
+	"os"
+	"os/exec"
+)
 
 type CommandExecutor interface {
 	Execute(cmd string, args ...string) (string, error)
@@ -12,6 +15,8 @@ type ShellExecutor struct {
 var _ CommandExecutor = (*ShellExecutor)(nil)
 
 func (r ShellExecutor) Execute(cmd string, args ...string) (string, error) {
-	out, err := exec.Command("git", args...).Output()
+	c := exec.Command(cmd, args...)
+	c.Stderr = os.Stdout
+	out, err := c.Output()
 	return string(out), err
 }

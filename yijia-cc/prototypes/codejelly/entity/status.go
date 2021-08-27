@@ -46,3 +46,13 @@ func NewChangeStatus(statusRune rune) (ChangeStatus, error) {
 
 	return status, nil
 }
+
+type LineStatus int
+
+const (
+	LineUnchanged LineStatus = iota
+	LineDeleted
+	LineAdded
+	LineNothing
+	LineHunkHeader
+)

@@ -8,23 +8,25 @@ import (
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/vcs"
 )
 
-type Git struct {
-	repoRootPath    string
+type Repository struct {
+	repoRootPath        string
 	commandExecutor CommandExecutor
 }
 
-var _ vcs.VersionControlSystem = (*Git)(nil)
+var _ vcs.Repository = (*Repository)(nil)
 
-func (g Git) GetFileDiffHeadersBetweenBranches(fromBranch string, toBranch string) ([]entity.FileDiffHeader, error) {
-	output, err := g.executeGitCommand("diff", "--name-status", fromBranch, toBranch)
+func (r Repository) GetFileDiffHeadersBetweenBranches(fromBranch string, toBranch string) ([]entity.FileDiffHeader, error) {
+	output, err := r.executeGitCommand("diff", "--name-status", fromBranch, toBranch)
+
 	if err != nil {
 		return nil, err
 	}
 
-	return g.parseFileDiffHeadersFromOutput(output)
+	return r.parseFileDiffHeadersFromOutput(output)
 }
 
-func (g Git) parseFileDiffHeadersFromOutput(output string) ([]entity.FileDiffHeader, error) {
+
+func (r Repository) parseFileDiffHeadersFromOutput(output string) ([]entity.FileDiffHeader, error){
 	if len(output) == 0 {
 		return nil, errors.New("diff is empty")
 	}
@@ -38,7 +40,7 @@ func (g Git) parseFileDiffHeadersFromOutput(output string) ([]entity.FileDiffHea
 			continue
 		}
 
-		fileDiff, err := newFileDiffHeaderFromLine(line, len(fileDiffs))
+		fileDiff, err := newFileDiffHeaderFromLine(line)
 		if err != nil {
 			return nil, err
 		}
@@ -48,16 +50,18 @@ func (g Git) parseFileDiffHeadersFromOutput(output string) ([]entity.FileDiffHea
 	return fileDiffs, nil
 }
 
-func (g Git) GetFileDiffsBetweenBranches(fromBranch string, toBranch string) ([]entity.FileDiff, error) {
-	output, err := g.executeGitCommand("diff", fromBranch, toBranch)
+
+func(r Repository) GetFileDiffsBetweenBranches(fromBranch string, toBranch string) ([]entity.FileDiff, error) {
+	output, err := r.executeGitCommand("diff", fromBranch, toBranch)
 	if err != nil {
 		return nil, err
 	}
 
-	return g.parseFileDiffsFromOutput(output)
+	return r.parseFileDiffsFromOutput(output)
 }
 
-func (g Git) parseFileDiffsFromOutput(output string) ([]entity.FileDiff, error) {
+
+func (r Repository) parseFileDiffsFromOutput(output string) ([]entity.FileDiff, error){
 	if len(output) == 0 {
 		return nil, errors.New("diff is empty")
 	}
@@ -72,7 +76,8 @@ func (g Git) parseFileDiffsFromOutput(output string) ([]entity.FileDiff, error) 
 			continue
 		}
 
-		fileDiff, err := newFileDiffFromBlock(block, len(fileDiffs))
+		fileDiff, err := newFileDiffFromBlock(block)
+
 		if err != nil {
 			return nil, err
 		}
@@ -83,17 +88,35 @@ func (g Git) parseFileDiffsFromOutput(output string) ([]entity.FileDiff, error) 
 	return fileDiffs, nil
 }
 
-func (g Git) executeGitCommand(args ...string) (string, error) {
-	return g.commandExecutor.Execute("git", args...)
+func (r Repository) executeGitCommand(args ...string) (string, error) {
+	args = append([]string{"-C", r.repoRootPath}, args...)
+	return r.commandExecutor.Execute("git", args...)
 }
 
-func NewGit(repoRootPath string) Git {
-	return NewGitCustomExecutor(ShellExecutor{}, repoRootPath)
+func NewRepo(repoRootPath string) Repository {
+	shellExecutor := ShellExecutor{}
+	return NewRepositoryDeps(shellExecutor, repoRootPath)
 }
 
-func NewGitCustomExecutor(commandExecutor CommandExecutor, repoRootPath string) Git {
-	return Git{
+func NewRepositoryDeps(commandExecutor CommandExecutor, repoRootPath string) Repository {
+	return Repository{
 		commandExecutor: commandExecutor,
 		repoRootPath:    repoRootPath,
 	}
 }
+
+
+/*Special Cases for parsing
+FileDiffHeader:
+- TODO: Binary files:
+	- Binary files /dev/null and b/discussion/dependencies/proto-1.0-SNAPSHOT.jar differ
+	- Binary file change file extension to txt
+	- Binary file change content but keep name as same
+	- Binary file deleted
+- TODO: image file
+- TODO: audio file
+
+StatsString:
+- TODO: StatsString have +1 only, equivalent to +1,1
+
+*/

@@ -107,15 +107,6 @@ type Line struct {
 	Content string
 }
 
-type LineStatus int
-
-const (
-	LineUnchanged LineStatus = iota
-	LineDeleted
-	LineAdded
-	LineNothing
-)
-
 //type Commit struct {
 //	id           int
 //	message      string
@@ -133,16 +124,7 @@ const (
 //	comments          []Comment
 //}
 
-// layer 2: unorganized hunks
-type Hunk struct {
-	//index string
-	FromFileStartLine  int
-	FromFileNumOfLines int
-	ToFileStartLine    int
-	ToFileNumOfLines   int
 
-	Lines []Line // - line 16-37, + line 16-33, unchanged
-}
 
 //layer 3: group unchanged chunks and hunks into file change pair
 type DiffLine struct {
