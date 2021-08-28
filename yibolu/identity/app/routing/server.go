@@ -3,9 +3,9 @@ package routing
 import (
 	"net/http"
 
-	"github.com/teamyapp/identity/app/dao"
-	"github.com/teamyapp/identity/app/idgen"
-	"github.com/teamyapp/identity/app/security"
+	"github.com/teamyapp/experimental/yibolu/identity/app/dao"
+	"github.com/teamyapp/experimental/yibolu/identity/app/idgen"
+	"github.com/teamyapp/experimental/yibolu/identity/app/security"
 
 	"github.com/gorilla/mux"
 )

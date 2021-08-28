@@ -3,7 +3,7 @@ package routing
 import (
 	"net/http"
 
-	"github.com/teamyapp/experimental/yibolu/app/service"
+	"github.com/teamyapp/experimental/yibolu/identity/app/service"
 )
 
 func newSignInHandlerFunc(authenticationService service.Authentication) http.HandlerFunc {
