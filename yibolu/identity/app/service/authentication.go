@@ -1,11 +1,11 @@
 package service
 
 import (
-	"github.com/teamyapp/identity/app/oauth"
-	"github.com/teamyapp/identity/app/security"
+	"github.com/teamyapp/experimental/yibolu/identity/app/oauth"
+	"github.com/teamyapp/experimental/yibolu/identity/app/security"
 
-	"github.com/teamyapp/identity/app/dao"
-	"github.com/teamyapp/identity/app/idgen"
+	"github.com/teamyapp/experimental/yibolu/identity/app/dao"
+	"github.com/teamyapp/experimental/yibolu/identity/app/idgen"
 )
 
 type Authentication interface {

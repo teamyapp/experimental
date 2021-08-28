@@ -1,6 +1,6 @@
 package dao
 
-import "github.com/teamyapp/identity/app/entity"
+import "github.com/teamyapp/experimental/yibolu/identity/app/entity"
 
 type ExternalUser interface {
 	GetInternalUserId(externalUserInfo entity.ExternalUserInfo) string

@@ -1,6 +1,6 @@
 package dao
 
-import "github.com/teamyapp/identity/app/entity"
+import "github.com/teamyapp/experimental/yibolu/identity/app/entity"
 
 type User interface {
 	GetUserByInternalID(internalID string) entity.User

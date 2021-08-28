@@ -1,4 +1,4 @@
-module github.com/teamyapp/identity
+module github.com/teamyapp/experimental/yibolu/identity
 
 go 1.16
 
