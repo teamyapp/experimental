@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/teamyapp/identity/app"
+	"github.com/teamyapp/experimental/yibolu/identity/app"
 )
 
 const version = 2
