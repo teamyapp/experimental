@@ -13,7 +13,8 @@ func getChunks(hunks []entity.Hunk, fromFileLines []string) []entity.Chunk{
 	chunkStart := 0
 	for _, hunk := range hunks {
 		if chunkStart < numOfLines {
-			curHunkStart := hunk.FromFileStartLine
+			curHunkStart := hunk.FromFileStartLine - 1
+
 			curHunkEnd := curHunkStart + hunk.FromFileNumOfLines - 1
 			chunk := getChunk(chunkStart, curHunkStart - 1, fromFileLines)
 
@@ -21,10 +22,8 @@ func getChunks(hunks []entity.Hunk, fromFileLines []string) []entity.Chunk{
 				chunks = append(chunks, chunk)
 			}
 
-			chunks = append(chunks, entity.Chunk {
-				Lines: hunk.Lines,
-				IsHunk: true,
-			})
+			chunks = append(chunks, hunkToChunk(hunk))
+
 
 			chunkStart = curHunkEnd + 1
 		}
@@ -52,5 +51,20 @@ func getChunk(chunkStart int, chunkEnd int, fromFileLines []string) entity.Chunk
 	return entity.Chunk{
 		Lines: chunkLines,
 		IsHunk: false,
+	}
+}
+
+func hunkToChunk(hunk entity.Hunk) entity.Chunk {
+	chunkLines := make([]entity.Line, 0)
+	for _, hunkLine := range hunk.Lines {
+		if hunkLine.Status == entity.LineHunkHeader {
+			continue
+		}
+		chunkLines = append(chunkLines, hunkLine)
+	}
+
+	return entity.Chunk {
+		Lines: chunkLines,
+		IsHunk: true,
 	}
 }
