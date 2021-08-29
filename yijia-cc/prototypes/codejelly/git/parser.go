@@ -13,6 +13,11 @@ func parseFileNameFromLine (line string) string{
 	return trimFileName(parts[len(parts) - 1])
 }
 
+func trimLineHunkHeader(line string) string {
+	parts := strings.Split(line, "@@")
+
+}
+
 func trimFileName (fileName string) string {
 	if fileName[:2] == "a/" {
 		fileName = strings.TrimPrefix(fileName, "a/")
@@ -121,7 +126,6 @@ func parseLineStatsFromStatString (statString string) (int, int, error) {
 
 	return startLine, numOfLines, nil
 }
-
 
 func getFileStatusFromFileName(fromFilePath string, toFilePath string) entity.ChangeStatus{
 	var status entity.ChangeStatus

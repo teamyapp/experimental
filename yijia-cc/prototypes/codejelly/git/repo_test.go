@@ -55,6 +55,13 @@ old mode 100755
 new mode 100644
 index a6a5318..495eafd
 Binary files a/src/main/resources/static/img/avatar.png and b/src/main/resources/static/img/avatar.png differ`,
+	"feature7,master":`diff --git a/web/.env.development b/web/.env.development
+new file mode 100644
+index 0000000..edc67e8
+--- /dev/null
++++ b/web/.env.development
+@@ -0,0 +1 @@
++diff --git REACT_APP_AUTH_API_BASE_URL=http://auth.api.staging.allgame.fun`,
 }
 
 var fileDiffHeaderOutputMap = map[string]string{
@@ -229,7 +236,7 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 			name:       "file modified with multiple hunks",
 			fromBranch: "feature2",
 			toBranch:   "master",
-			expected: []entity.FileDiff{
+			expected: []entity.FileDiff {
 				{
 					FileDiffHeader: entity.FileDiffHeader{
 						Status:       entity.ChangeModified,

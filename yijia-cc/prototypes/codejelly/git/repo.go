@@ -2,10 +2,10 @@ package git
 
 import (
 	"errors"
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/vcs"
 	"strings"
 
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
-	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/vcs"
 )
 
 type Repository struct {
@@ -14,6 +14,15 @@ type Repository struct {
 }
 
 var _ vcs.Repository = (*Repository)(nil)
+
+func (r Repository) GetTextFileContentFromBranch(branch string, filepath string) (string, error) {
+	output, err := r.executeGitCommand("show", branch + ":" + filepath)
+	if err != nil {
+		return "", err
+	}
+
+	return output, nil
+}
 
 func (r Repository) GetFileDiffHeadersBetweenBranches(fromBranch string, toBranch string) ([]entity.FileDiffHeader, error) {
 	output, err := r.executeGitCommand("diff", "--name-status", fromBranch, toBranch)
@@ -25,14 +34,12 @@ func (r Repository) GetFileDiffHeadersBetweenBranches(fromBranch string, toBranc
 	return r.parseFileDiffHeadersFromOutput(output)
 }
 
-
 func (r Repository) parseFileDiffHeadersFromOutput(output string) ([]entity.FileDiffHeader, error){
 	if len(output) == 0 {
 		return nil, errors.New("diff is empty")
 	}
 
 	lines := strings.Split(output, "\n")
-
 	fileDiffs := make([]entity.FileDiffHeader, 0)
 
 	for _, line := range lines {
@@ -50,7 +57,6 @@ func (r Repository) parseFileDiffHeadersFromOutput(output string) ([]entity.File
 	return fileDiffs, nil
 }
 
-
 func(r Repository) GetFileDiffsBetweenBranches(fromBranch string, toBranch string) ([]entity.FileDiff, error) {
 	output, err := r.executeGitCommand("diff", fromBranch, toBranch)
 	if err != nil {
@@ -60,15 +66,14 @@ func(r Repository) GetFileDiffsBetweenBranches(fromBranch string, toBranch strin
 	return r.parseFileDiffsFromOutput(output)
 }
 
-
 func (r Repository) parseFileDiffsFromOutput(output string) ([]entity.FileDiff, error){
 	if len(output) == 0 {
 		return nil, errors.New("diff is empty")
 	}
 
 	// each file has a code of block, containing filename, file change stats, a slice of hunks for the file, etc.
+	// TODO: process file diff line by line when code contains "diff --git"
 	blocks := strings.Split(output, "diff --git")
-
 	fileDiffs := make([]entity.FileDiff, 0)
 
 	for _, block := range blocks {
@@ -77,7 +82,6 @@ func (r Repository) parseFileDiffsFromOutput(output string) ([]entity.FileDiff, 
 		}
 
 		fileDiff, err := newFileDiffFromBlock(block)
-
 		if err != nil {
 			return nil, err
 		}
