@@ -31,6 +31,7 @@ func main() {
 
 	codeReview := service.NewCodeReview(g)
 	fullFileDiff, err := codeReview.GetFile(fileDiffs[0], "yijia-cc/feature-find-amenity-type")
+
 	if err != nil {
 		panic(err)
 	}
