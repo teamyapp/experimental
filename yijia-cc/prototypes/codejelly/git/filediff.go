@@ -115,23 +115,24 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 			hunkLines = make([]entity.Line, 0)
 			hunkLines = append(hunkLines, entity.Line{
 				Status: entity.LineHunkHeader,
-				Content: line,
+
+				Content: trimLineHunkHeader(line),
 			})
 
 		} else if strings.HasPrefix(line, noChangeLinePrefix){
 			hunkLines = append(hunkLines, entity.Line{
 				Status: entity.LineUnchanged,
-				Content: line,
+				Content: strings.TrimPrefix(line, noChangeLinePrefix),
 			})
 		} else if strings.HasPrefix(line, deletedLinePrefix){
 			hunkLines = append(hunkLines, entity.Line{
 				Status: entity.LineDeleted,
-				Content: line,
+				Content: strings.TrimPrefix(line, deletedLinePrefix),
 			})
 		} else if strings.HasPrefix(line, addedLinePrefix){
 			hunkLines = append(hunkLines, entity.Line{
 				Status: entity.LineAdded,
-				Content: line,
+				Content: strings.TrimPrefix(line, addedLinePrefix),
 			})
 		}
 	}
@@ -141,11 +142,13 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 	return hunks, nil
 }
 
+// TODO: clearly define semantics of block
 func newFileDiffHeaderFromBlock(block string) (entity.FileDiffHeader, error) {
 	if len(block) == 0 {
 		return entity.FileDiffHeader{}, errors.New("invalid git diff hunk")
 	}
 
+	// TODO: process block line by line
 	contents := strings.Split(block, "@@")
 	content := contents[0]
 	lines := strings.Split(content, "\n")

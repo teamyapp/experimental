@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/service"
 
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/git"
 )
@@ -14,17 +15,26 @@ func main() {
 		panic(err)
 	}
 
-	fileDiff, err := g.GetFileDiffsBetweenBranches("yijia-cc/feature-find-amenity-type", "master")
-	fmt.Println(len(fileDiffHeaders), len(fileDiff))
-	fmt.Println(fileDiff[1].FileDiffHeader)
+	fileDiffs, err := g.GetFileDiffsBetweenBranches("yijia-cc/feature-find-amenity-type", "master")
+	fmt.Println(len(fileDiffHeaders), len(fileDiffs))
+	fmt.Println(fileDiffs[1].FileDiffHeader)
 
-	hunks := fileDiff[11].Hunks
+	hunks := fileDiffs[11].Hunks
 	for _, hunk := range hunks {
 		lines := hunk.Lines
-		fmt.Println(lines)
+		fmt.Println(len(lines))
 		//for _, _ := range lines {
 		//	//fmt.Print("Line Status: ", line.Status)
 		//	//fmt.Println(". Line Content: ", line.Content)
 		//}
  	}
+
+	codeReview := service.NewCodeReview(g)
+	fullFileDiff, err := codeReview.GetFile(fileDiffs[0], "yijia-cc/feature-find-amenity-type")
+
+	for _, chunk := range fullFileDiff.Chunks {
+		for _, line := range chunk.Lines {
+			fmt.Println(line.Content)
+		}
+	}
 }
