@@ -13,9 +13,14 @@ func parseFileNameFromLine (line string) string{
 	return trimFileName(parts[len(parts) - 1])
 }
 
+// e.g. @@ -18,16 +18,13 @@ type AmenitySQL struct {
 func trimLineHunkHeader(line string) string {
-	parts := strings.Split(line, "@@")
+	trimmedLine := strings.TrimPrefix(line, "@@")
+	//fmt.Println(trimmedLine)
+	splitIndex := strings.Index(trimmedLine, "@@")
 
+	// remove leading white space
+	return strings.TrimPrefix(trimmedLine[splitIndex + 2:], " ")
 }
 
 func trimFileName (fileName string) string {
