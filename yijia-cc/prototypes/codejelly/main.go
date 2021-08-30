@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/service"
 
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/git"
 )
@@ -14,17 +16,39 @@ func main() {
 		panic(err)
 	}
 
-	fileDiff, err := g.GetFileDiffsBetweenBranches("yijia-cc/feature-find-amenity-type", "master")
-	fmt.Println(len(fileDiffHeaders), len(fileDiff))
-	fmt.Println(fileDiff[1].FileDiffHeader)
+	fileDiffs, err := g.GetFileDiffsBetweenBranches("yijia-cc/feature-find-amenity-type", "master")
+	fmt.Println(len(fileDiffHeaders), len(fileDiffs))
+	fmt.Println(fileDiffs[1].FileDiffHeader)
 
-	hunks := fileDiff[11].Hunks
+	hunks := fileDiffs[11].Hunks
 	for _, hunk := range hunks {
 		lines := hunk.Lines
-		fmt.Println(lines)
+		fmt.Println(len(lines))
 		//for _, _ := range lines {
 		//	//fmt.Print("Line Status: ", line.Status)
 		//	//fmt.Println(". Line Content: ", line.Content)
 		//}
  	}
+
+	codeReview := service.NewCodeReview(g)
+	fullFileDiff, err := codeReview.GetFile(fileDiffs[9], "yijia-cc/feature-find-amenity-type")
+
+	if err != nil {
+		panic(err)
+	}
+
+	for _, chunk := range fullFileDiff.Chunks {
+		for _, line := range chunk.NumberedLines {
+
+			fmt.Printf("[%02d, %02d]", line.FromFileLineNumber, line.ToFileLineNumber)
+			if line.Status == entity.LineUnchanged {
+				fmt.Print(" ")
+			} else if line.Status == entity.LineDeleted {
+				fmt.Print("-")
+			} else if line.Status == entity.LineAdded {
+				fmt.Print("+")
+			}
+			fmt.Println(line.Content)
+		}
+	}
 }

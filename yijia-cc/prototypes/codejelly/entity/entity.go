@@ -101,11 +101,8 @@ layer 4: feed data for split view and unified view
 layer 5: render UI at frontend
 */
 
-// layer 1: git diff
-type Line struct {
-	Status  LineStatus
-	Content string
-}
+
+
 
 //type Commit struct {
 //	id           int
@@ -125,31 +122,15 @@ type Line struct {
 //}
 
 
+//type FilePaths struct {
+//	oldFilePath string
+//	newFilePath string
+//	isRenamed   bool
+//}
 
-//layer 3: group unchanged chunks and hunks into file change pair
-type DiffLine struct {
-	Line
-	oldLineNumber int
-	newLineNumber int
-}
 
-type DiffFilePaths struct {
-	oldFilePath string
-	newFilePath string
-	isRenamed   bool
-}
 
-type Chunk struct {
-	lines  []DiffLine
-	isHunk bool
-}
-
-type Diff struct {
-	DiffFilePaths
-	chunks []Chunk
-}
-
-//layer 4: feed data for split view and unified view
+//layer 4: calculate statistics
 type DiffStatistics struct {
 	totalNumOfLines   int
 	numOfDeletedLines int
@@ -157,7 +138,7 @@ type DiffStatistics struct {
 }
 
 type DiffMetadata struct {
-	DiffFilePaths
+	FileDiffHeader
 	DiffStatistics
 }
 
@@ -166,8 +147,11 @@ type ChunkPair struct {
 	newFileChunk Chunk
 }
 
+// layer 5: feed data for split view and unified view
 // Backend For Frontend
 // ============Response body===============
+
+
 type SplitDiff struct {
 	DiffMetadata
 	allChunkPairs []ChunkPair

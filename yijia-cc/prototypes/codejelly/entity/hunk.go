@@ -1,5 +1,7 @@
 package entity
 
+import "fmt"
+
 // layer 2: unorganized hunks
 type Hunk struct {
 	//index string
@@ -12,4 +14,9 @@ type HunkHeader struct {
 	FromFileNumOfLines int
 	ToFileStartLine    int
 	ToFileNumOfLines   int
+}
+
+func (h HunkHeader) String() string {
+	return fmt.Sprintf("[HunkHeader FromFileStartLine=%d, FromFileNumOfLines=%d, ToFileStartLine=%d, ToFileNumOfLines=%d",
+		h.FromFileStartLine, h.FromFileNumOfLines, h.ToFileStartLine, h.ToFileNumOfLines)
 }
