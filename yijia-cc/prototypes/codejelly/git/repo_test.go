@@ -20,7 +20,7 @@ index 3d739dc..40b8555 100644
 -import info.grouplive.discussion.model.User;
 -//import info.grouplive.discussion.model.User;
 +import info.grouplive.discussion.model.UserModel;
- import lombok.AllArgsConstructor;
+ 
 @@ -52,7 +45,7 @@ public class CommentService {
      }
  
@@ -256,27 +256,27 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 							Lines: []entity.Line{
 								{
 									Status: entity.LineHunkHeader,
-									Content: "@@ -9,7 +9,8 @@ import info.grouplive.discussion.exceptions.PostNotFoundException;",
+									Content: "import info.grouplive.discussion.exceptions.PostNotFoundException;",
 								},
 								{
 									Status:  entity.LineUnchanged,
-									Content: " import info.grouplive.discussion.mapper.CommentMapper;",
+									Content: "import info.grouplive.discussion.mapper.CommentMapper;",
 								},
 								{
 									Status:  entity.LineDeleted,
-									Content: "-import info.grouplive.discussion.model.User;",
+									Content: "import info.grouplive.discussion.model.User;",
 								},
 								{
 									Status:  entity.LineDeleted,
-									Content: "-//import info.grouplive.discussion.model.User;",
+									Content: "//import info.grouplive.discussion.model.User;",
 								},
 								{
 									Status:  entity.LineAdded,
-									Content: "+import info.grouplive.discussion.model.UserModel;",
+									Content: "import info.grouplive.discussion.model.UserModel;",
 								},
 								{
 									Status:  entity.LineUnchanged,
-									Content: " import lombok.AllArgsConstructor;",
+									Content: "",
 								},
 							},
 						},
@@ -291,39 +291,39 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 							Lines: []entity.Line{
 								{
 									Status: entity.LineHunkHeader,
-									Content: "@@ -52,7 +45,7 @@ public class CommentService {",
+									Content: "public class CommentService {",
 								},
 								{
 									Status:  entity.LineUnchanged,
-									Content: "     }",
+									Content: "    }",
 								},
 								{
 									Status:  entity.LineUnchanged,
-									Content: " ",
+									Content: "",
 								},
 								{
 									Status:  entity.LineUnchanged,
-									Content: "     public List<CommentsDto> getAllCommentsForUser(String userName) {",
+									Content: "    public List<CommentsDto> getAllCommentsForUser(String userName) {",
 								},
 								{
 									Status:  entity.LineDeleted,
-									Content: "-        User user = userRepository.findByUsername(userName)",
+									Content: "        User user = userRepository.findByUsername(userName)",
 								},
 								{
 									Status:  entity.LineAdded,
-									Content: "+        UserModel user = userRepository.findByUsername(userName)",
+									Content: "        UserModel user = userRepository.findByUsername(userName)",
 								},
 								{
 									Status:  entity.LineUnchanged,
-									Content: "                             .orElseThrow(() -> new UsernameNotFoundException(userName));",
+									Content: "                            .orElseThrow(() -> new UsernameNotFoundException(userName));",
 								},
 								{
 									Status:  entity.LineUnchanged,
-									Content: "         return commentRepository.findAllByUser(user)",
+									Content: "        return commentRepository.findAllByUser(user)",
 								},
 								{
 									Status:  entity.LineUnchanged,
-									Content: "                 .stream()",
+									Content: "                .stream()",
 								},
 							},
 						},
@@ -348,11 +348,11 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 							Lines: []entity.Line{
 								{
 									Status: entity.LineHunkHeader,
-									Content: "@@ -0,0 +1 @@",
+									Content: "",
 								},
 								{
 									Status:  entity.LineAdded,
-									Content: "+REACT_APP_AUTH_API_BASE_URL=http://auth.api.staging.allgame.fun",
+									Content: "REACT_APP_AUTH_API_BASE_URL=http://auth.api.staging.allgame.fun",
 								},
 							},
 						},

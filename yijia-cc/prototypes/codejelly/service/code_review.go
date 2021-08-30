@@ -30,3 +30,4 @@ func NewCodeReview(repo vcs.Repository) CodeReview {
 		repo: repo,
 	}
 }
+

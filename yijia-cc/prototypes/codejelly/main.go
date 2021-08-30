@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/service"
 
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/git"
@@ -30,14 +31,23 @@ func main() {
  	}
 
 	codeReview := service.NewCodeReview(g)
-	fullFileDiff, err := codeReview.GetFile(fileDiffs[0], "yijia-cc/feature-find-amenity-type")
+	fullFileDiff, err := codeReview.GetFile(fileDiffs[9], "yijia-cc/feature-find-amenity-type")
 
 	if err != nil {
 		panic(err)
 	}
 
 	for _, chunk := range fullFileDiff.Chunks {
-		for _, line := range chunk.Lines {
+		for _, line := range chunk.NumberedLines {
+
+			fmt.Printf("[%02d, %02d]", line.FromFileLineNumber, line.ToFileLineNumber)
+			if line.Status == entity.LineUnchanged {
+				fmt.Print(" ")
+			} else if line.Status == entity.LineDeleted {
+				fmt.Print("-")
+			} else if line.Status == entity.LineAdded {
+				fmt.Print("+")
+			}
 			fmt.Println(line.Content)
 		}
 	}
