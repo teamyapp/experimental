@@ -81,7 +81,7 @@ func (r Repository) parseFileDiffsFromOutput(output string) ([]entity.FileDiff, 
 			continue
 		}
 
-		fileDiff, err := newFileDiffFromBlock(block)
+		fileDiff, err := NewFileDiffFromBlock(block)
 		if err != nil {
 			return nil, err
 		}

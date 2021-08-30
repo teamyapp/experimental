@@ -56,3 +56,21 @@ const (
 	LineNothing
 	LineHunkHeader
 )
+
+var lineStatusNames = map[LineStatus]string{
+	LineUnchanged:    "Unchanged",
+	LineDeleted: "Deleted",
+	LineAdded:  "Added",
+	LineHunkHeader:  "HunkHeader",
+	LineNothing: "Nothing",
+}
+
+func (l LineStatus) String() string {
+	statusName, ok := lineStatusNames[l]
+	if !ok {
+		fmt.Println("line status not found")
+		return "unknown"
+	}
+
+	return statusName
+}

@@ -101,11 +101,8 @@ layer 4: feed data for split view and unified view
 layer 5: render UI at frontend
 */
 
-// layer 1: git diff
-type Line struct {
-	Status  LineStatus
-	Content string
-}
+
+
 
 //type Commit struct {
 //	id           int
@@ -124,18 +121,6 @@ type Line struct {
 //	comments          []Comment
 //}
 
-//layer 3: core data model:
-//group unchanged chunks and hunks into file change pair
-
-type Chunk struct {
-	Lines  []Line
-	IsHunk bool
-}
-
-type FullFileDiff struct {
-	FileDiffHeader
-	Chunks []Chunk
-}
 
 //type FilePaths struct {
 //	oldFilePath string
@@ -165,11 +150,7 @@ type ChunkPair struct {
 // layer 5: feed data for split view and unified view
 // Backend For Frontend
 // ============Response body===============
-type NumberedLine struct {
-	Line
-	oldLineNumber int
-	newLineNumber int
-}
+
 
 type SplitDiff struct {
 	DiffMetadata

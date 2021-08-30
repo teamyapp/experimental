@@ -81,7 +81,7 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 		return nil, nil
 	}
 
-	block = strings.TrimSpace(block)
+	block = strings.TrimPrefix(block, " ")
 	lines := strings.Split(block, "\n")
 
 	// increment hunkCounter when line match lineChangeStatPattern
@@ -194,7 +194,7 @@ func newFileDiffHeaderFromBlock(block string) (entity.FileDiffHeader, error) {
 	}, nil
 }
 
-func newFileDiffFromBlock(block string) (entity.FileDiff, error) {
+func NewFileDiffFromBlock(block string) (entity.FileDiff, error) {
 	if len(block) == 0 {
 		return entity.FileDiff{}, errors.New("file does not have diff")
 	}

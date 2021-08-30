@@ -9,62 +9,102 @@ func getChunks(hunks []entity.Hunk, fromFileLines []string) []entity.Chunk{
 
 	chunks := make([]entity.Chunk, 0)
 	numOfLines := len(fromFileLines)
+
 	// TODO: add comments to describe the algorithm with examples
-	chunkStart := 0
+	chunkFromFileStart := 0
+	chunkToFileStart := 0
+	var chunk entity.Chunk
+
 	for _, hunk := range hunks {
-		if chunkStart < numOfLines {
-			curHunkStart := hunk.FromFileStartLine - 1
+		if chunkFromFileStart < numOfLines {
+			hunkStart := hunk.FromFileStartLine - 1
+			chunk, chunkFromFileStart, chunkToFileStart = getChunk(chunkFromFileStart, hunkStart - 1, chunkToFileStart, fromFileLines)
 
-			curHunkEnd := curHunkStart + hunk.FromFileNumOfLines - 1
-			chunk := getChunk(chunkStart, curHunkStart - 1, fromFileLines)
-
-			if chunk.Lines != nil {
+			if chunk.NumberedLines != nil {
 				chunks = append(chunks, chunk)
 			}
 
-			chunks = append(chunks, hunkToChunk(hunk))
-
-
-			chunkStart = curHunkEnd + 1
+			chunk, chunkFromFileStart, chunkToFileStart = hunkToChunk(chunkFromFileStart, chunkToFileStart, hunk)
+			chunks = append(chunks, chunk)
 		}
 	}
 
-	if chunkStart < numOfLines {
-		chunk := getChunk(chunkStart, numOfLines - 1, fromFileLines)
+	if chunkFromFileStart < numOfLines {
+		chunk, _, _ = getChunk(chunkFromFileStart, numOfLines - 1, chunkToFileStart, fromFileLines)
 		chunks = append(chunks, chunk)
 	}
 
 	return chunks
 }
 
-func getChunk(chunkStart int, chunkEnd int, fromFileLines []string) entity.Chunk {
-	chunkLines := make([]entity.Line, 0)
+func getChunk(chunkFromFileStart int, chunkFromFileEnd int, chunkToFileStart int, fromFileLines []string) (entity.Chunk, int, int) {
+	chunkNumberedLines := make([]entity.NumberedLine, 0)
 
-	for i := chunkStart; i <= chunkEnd; i++ {
-		outputLine := entity.Line {
+	fromFileStart := chunkFromFileStart
+	fromFileEnd := chunkFromFileEnd
+	toFileStart := chunkToFileStart
+
+	for i := fromFileStart; i <= fromFileEnd; i++ {
+		numberedLine := entity.NumberedLine {
 			Status: entity.LineUnchanged,
 			Content: fromFileLines[i],
+			FromFileLineNumber: i + 1,
+			ToFileLineNumber: i - fromFileStart + toFileStart + 1,
 		}
-		chunkLines = append(chunkLines, outputLine)
+
+		chunkNumberedLines = append(chunkNumberedLines, numberedLine)
+		chunkFromFileStart++
+		chunkToFileStart++
 	}
 
 	return entity.Chunk{
-		Lines: chunkLines,
+		NumberedLines: chunkNumberedLines,
 		IsHunk: false,
-	}
+	}, chunkFromFileStart, chunkToFileStart
 }
 
-func hunkToChunk(hunk entity.Hunk) entity.Chunk {
-	chunkLines := make([]entity.Line, 0)
+func hunkToChunk(chunkFromFileStart int, chunkToFileStart int, hunk entity.Hunk) (entity.Chunk, int, int) {
+	chunkLines := make([]entity.NumberedLine, 0)
 	for _, hunkLine := range hunk.Lines {
-		if hunkLine.Status == entity.LineHunkHeader {
+		status := hunkLine.Status
+
+		if status == entity.LineHunkHeader {
 			continue
 		}
-		chunkLines = append(chunkLines, hunkLine)
+
+		var hunkNumberedLine entity.NumberedLine
+		if status == entity.LineUnchanged {
+			hunkNumberedLine = entity.NumberedLine{
+				Status: status,
+				Content: hunkLine.Content,
+				FromFileLineNumber: chunkFromFileStart + 1,
+				ToFileLineNumber: chunkToFileStart + 1,
+			}
+			chunkFromFileStart++
+			chunkToFileStart++
+		} else if status == entity.LineDeleted {
+			hunkNumberedLine = entity.NumberedLine{
+				Status: status,
+				Content: hunkLine.Content,
+				FromFileLineNumber: chunkFromFileStart + 1,
+				ToFileLineNumber: entity.NoLineNumber,
+			}
+			chunkFromFileStart++
+		} else if status == entity.LineAdded {
+			hunkNumberedLine = entity.NumberedLine{
+				Status: status,
+				Content: hunkLine.Content,
+				FromFileLineNumber: entity.NoLineNumber,
+				ToFileLineNumber: chunkToFileStart + 1,
+			}
+			chunkToFileStart++
+		}
+
+		chunkLines = append(chunkLines, hunkNumberedLine)
 	}
 
 	return entity.Chunk {
-		Lines: chunkLines,
+		NumberedLines: chunkLines,
 		IsHunk: true,
-	}
+	}, chunkFromFileStart, chunkToFileStart
 }
