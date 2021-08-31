@@ -14,6 +14,7 @@ type HunkHeader struct {
 	FromFileNumOfLines int
 	ToFileStartLine    int
 	ToFileNumOfLines   int
+	HeaderLine string
 }
 
 func (h HunkHeader) String() string {

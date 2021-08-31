@@ -3,10 +3,10 @@ package entity
 import "fmt"
 
 type FileDiffHeader struct {
-	Status       ChangeStatus
-	FromFilePath string
-	ToFilePath   string
-	Similarity   int
+	Status       ChangeStatus `json:"status"`
+	FromFilePath string `json:"from_file_path"`
+	ToFilePath   string `json:"to_file_path"`
+	Similarity   int `json:"similarity"`
 }
 
 func (f FileDiffHeader) String() string {

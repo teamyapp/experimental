@@ -56,18 +56,10 @@ func parseLineIntoStatString (line string) (entity.HunkHeader, error) {
 	// toFileStatString example: "+16,7"
 	toFileStatString := stats[2]
 
-	/*
-	var err error
-
-	f := func(statString string) bool {
-		_, _, err := parseLineStatsFromStatString(statString)
-		return err == nil
+	headerLine := ""
+	if len(stats) > 4 {
+		headerLine = strings.Join(stats[4:], " ")
 	}
-
-	if !f(fromFileStatString) && !f(toFileStatString) {
-		return -1, -1, -1, -1, err
-	}
-	*/
 
 	fromFileStartLine, fromFileNumOfLines, err := parseLineStatsFromStatString(fromFileStatString)
 	if err != nil {
@@ -76,15 +68,18 @@ func parseLineIntoStatString (line string) (entity.HunkHeader, error) {
 			FromFileNumOfLines: -1,
 			ToFileStartLine: -1,
 			ToFileNumOfLines: -1,
+			HeaderLine: "",
 		}, err
 	}
 	toFileStartLine, toFileNumOfLines, err := parseLineStatsFromStatString(toFileStatString)
+
 	if err != nil {
 		return entity.HunkHeader{
 			FromFileStartLine: -1,
 			FromFileNumOfLines: -1,
 			ToFileStartLine: -1,
 			ToFileNumOfLines: -1,
+			HeaderLine: "",
 		}, err
 	}
 
@@ -93,6 +88,7 @@ func parseLineIntoStatString (line string) (entity.HunkHeader, error) {
 		FromFileNumOfLines: fromFileNumOfLines,
 		ToFileStartLine: toFileStartLine,
 		ToFileNumOfLines: toFileNumOfLines,
+		HeaderLine: headerLine,
 	}, err
 }
 
