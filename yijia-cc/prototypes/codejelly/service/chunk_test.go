@@ -22,6 +22,7 @@ func TestGetChunks(t *testing.T) {
 						FromFileNumOfLines: 4,
 						ToFileStartLine: 2,
 						ToFileNumOfLines: 3,
+						HeaderLine: "",
 					},
 
 					Lines: []entity.Line{
@@ -53,6 +54,7 @@ func TestGetChunks(t *testing.T) {
 						FromFileNumOfLines: 4,
 						ToFileStartLine: 7,
 						ToFileNumOfLines: 4,
+						HeaderLine: "",
 					},
 
 					Lines: []entity.Line{

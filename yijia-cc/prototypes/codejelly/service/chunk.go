@@ -1,6 +1,9 @@
 package service
 
-import "github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
+import (
+	"fmt"
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
+)
 
 func getChunks(hunks []entity.Hunk, fromFileLines []string) []entity.Chunk{
 	if len(hunks) == 0 || len(fromFileLines) == 0 {
@@ -68,12 +71,9 @@ func hunkToChunk(chunkFromFileStart int, chunkToFileStart int, hunk entity.Hunk)
 	for _, hunkLine := range hunk.Lines {
 		status := hunkLine.Status
 
-		if status == entity.LineHunkHeader {
-			continue
-		}
-
 		var hunkNumberedLine entity.NumberedLine
-		if status == entity.LineUnchanged {
+		switch status {
+		case entity.LineUnchanged:
 			hunkNumberedLine = entity.NumberedLine{
 				Status: status,
 				Content: hunkLine.Content,
@@ -82,7 +82,7 @@ func hunkToChunk(chunkFromFileStart int, chunkToFileStart int, hunk entity.Hunk)
 			}
 			chunkFromFileStart++
 			chunkToFileStart++
-		} else if status == entity.LineDeleted {
+		case entity.LineDeleted:
 			hunkNumberedLine = entity.NumberedLine{
 				Status: status,
 				Content: hunkLine.Content,
@@ -90,7 +90,7 @@ func hunkToChunk(chunkFromFileStart int, chunkToFileStart int, hunk entity.Hunk)
 				ToFileLineNumber: entity.NoLineNumber,
 			}
 			chunkFromFileStart++
-		} else if status == entity.LineAdded {
+		case entity.LineAdded:
 			hunkNumberedLine = entity.NumberedLine{
 				Status: status,
 				Content: hunkLine.Content,
@@ -98,6 +98,8 @@ func hunkToChunk(chunkFromFileStart int, chunkToFileStart int, hunk entity.Hunk)
 				ToFileLineNumber: chunkToFileStart + 1,
 			}
 			chunkToFileStart++
+		default:
+			fmt.Println("error")
 		}
 
 		chunkLines = append(chunkLines, hunkNumberedLine)
@@ -108,3 +110,4 @@ func hunkToChunk(chunkFromFileStart int, chunkToFileStart int, hunk entity.Hunk)
 		IsHunk: true,
 	}, chunkFromFileStart, chunkToFileStart
 }
+

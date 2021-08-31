@@ -113,11 +113,10 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 
 			hunkCounter += 1
 			hunkLines = make([]entity.Line, 0)
-			hunkLines = append(hunkLines, entity.Line{
-				Status: entity.LineHunkHeader,
-
-				Content: trimLineHunkHeader(line),
-			})
+			//hunkLines = append(hunkLines, entity.Line{
+			//	Status: entity.LineHunkHeader,
+			//	Content: trimLineHunkHeader(line),
+			//})
 
 		} else if strings.HasPrefix(line, noChangeLinePrefix){
 			hunkLines = append(hunkLines, entity.Line{
