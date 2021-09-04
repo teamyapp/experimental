@@ -5,8 +5,11 @@ import (
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/stat"
 )
 
-func RenderUnifiedView(fullFileDiff entity.FullFileDiff) entity.UnifiedView {
-	fileDiffStats := stat.ComputeFileDiffStats(fullFileDiff)
+func RenderUnifiedView(fullFileDiff entity.FullFileDiff) (entity.UnifiedView, error) {
+	fileDiffStats, err := stat.ComputeFileDiffStats(fullFileDiff)
+	if err != nil {
+		return entity.UnifiedView{}, err
+	}
 
 	indices := make([]int, 0)
 	for index, chunk := range fullFileDiff.Chunks {
@@ -22,11 +25,14 @@ func RenderUnifiedView(fullFileDiff entity.FullFileDiff) entity.UnifiedView {
 		},
 		AllChunks:   fullFileDiff.Chunks,
 		HunkIndices: indices,
-	}
+	}, nil
 }
 
-func RenderSplitView(fullFileDiff entity.FullFileDiff) entity.SplitView {
-	fileDiffStats := stat.ComputeFileDiffStats(fullFileDiff)
+func RenderSplitView(fullFileDiff entity.FullFileDiff) (entity.SplitView, error) {
+	fileDiffStats, err := stat.ComputeFileDiffStats(fullFileDiff)
+	if err != nil {
+		return entity.SplitView{}, err
+	}
 
 	indices := make([]int, 0)
 	chunkPairs := make([]entity.ChunkPair, 0)
@@ -46,7 +52,7 @@ func RenderSplitView(fullFileDiff entity.FullFileDiff) entity.SplitView {
 		},
 		AllChunkPairs:   chunkPairs,
 		HunkPairIndices: indices,
-	}
+	}, nil
 }
 
 func getChunkPair(chunk entity.Chunk) entity.ChunkPair {

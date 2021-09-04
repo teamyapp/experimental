@@ -326,7 +326,6 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 				{
 					FileDiffHeader: entity.FileDiffHeader{
 						Status:       entity.ChangeAdded,
-						FromFilePath: "/dev/null",
 						ToFilePath:   "web/.env.development",
 						Similarity:   0,
 					},
@@ -348,6 +347,7 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 							},
 						},
 					},
+					HasNoNewLineSymbol: true,
 				},
 			},
 		},
@@ -359,7 +359,6 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 				{
 					FileDiffHeader: entity.FileDiffHeader{
 						Status: entity.ChangeAdded,
-						FromFilePath: "/dev/null",
 						ToFilePath: "src/main/resources/static/img/addPics.png",
 						Similarity: 0,
 					},
@@ -392,7 +391,6 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 					FileDiffHeader: entity.FileDiffHeader{
 						Status: entity.ChangeDeleted,
 						FromFilePath: "src/main/resources/static/img/addPics.png",
-						ToFilePath: "/dev/null",
 						Similarity: 0,
 					},
 					Hunks: []entity.Hunk{},

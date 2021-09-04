@@ -54,7 +54,10 @@ func main() {
 	}
 
  */
-	stats := stat.ComputeFileDiffStats(fullFileDiff)
+	stats, err := stat.ComputeFileDiffStats(fullFileDiff)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(stats)
 
 	//unifiedView := view.RenderUnifiedView(fullFileDiff)
@@ -74,7 +77,11 @@ func main() {
 	//}
 	//fmt.Println(unifiedView.HunkIndices)
 
-	splitview := view.RenderSplitView(fullFileDiff)
+	splitview, err := view.RenderSplitView(fullFileDiff)
+	if err != nil {
+		panic(err)
+	}
+
 	for _, chunkPair := range splitview.AllChunkPairs {
 		for _, line := range chunkPair.ToFileChunk.NumberedLines {
 			fmt.Printf("[%02d, %02d]", line.FromFileLineNumber, line.ToFileLineNumber)
