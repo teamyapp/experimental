@@ -2,6 +2,8 @@ package entity
 
 import "fmt"
 
+const GitNullFile = "/dev/null"
+
 type FileDiffHeader struct {
 	Status       ChangeStatus `json:"status"`
 	FromFilePath string `json:"from_file_path"`
@@ -17,4 +19,5 @@ func (f FileDiffHeader) String() string {
 type FileDiff struct {
 	FileDiffHeader
 	Hunks []Hunk
+	HasNoNewLineSymbol bool
 }

@@ -30,6 +30,10 @@ func trimFileName (fileName string) string {
 	if fileName[:2] == "b/" {
 		fileName = strings.TrimPrefix(fileName, "b/")
 	}
+
+	if fileName == entity.GitNullFile {
+		fileName = ""
+	}
 	return fileName
 }
 
@@ -128,25 +132,29 @@ func parseLineStatsFromStatString (statString string) (int, int, error) {
 	return startLine, numOfLines, nil
 }
 
-func getFileStatusFromFileName(fromFilePath string, toFilePath string) entity.ChangeStatus{
+func getFileStatusFromFileName(fromFilePath string, toFilePath string) (entity.ChangeStatus, error){
 	var status entity.ChangeStatus
 
-	if fromFilePath == toFilePath && fromFilePath != "/dev/null"{
-		status = entity.ChangeModified
-		return status
+	if len(fromFilePath) == 0 && len(toFilePath) == 0 {
+		return status, errors.New("invalid file path")
 	}
 
-	if fromFilePath == "/dev/null" && toFilePath != "/dev/null"{
+	if len(fromFilePath) == 0 {
 		status = entity.ChangeAdded
-		return status
+		return status, nil
 	}
 
-	if toFilePath == "/dev/null" && fromFilePath != "/dev/null" {
+	if len(toFilePath) == 0 {
 		status = entity.ChangeDeleted
-		return status
+		return status, nil
 	}
 
-	return entity.ChangeRenamed
+	if fromFilePath == toFilePath {
+		status = entity.ChangeModified
+		return status, nil
+	}
+
+	return entity.ChangeRenamed, nil
 }
 
 func getPositiveIntegerFromString (s string) (int, error) {
