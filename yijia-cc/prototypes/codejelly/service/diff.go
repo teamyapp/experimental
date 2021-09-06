@@ -1,16 +1,15 @@
 package service
 
 import (
-	"errors"
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/entity"
 	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/vcs"
 )
 
-type CodeReview struct {
+type Diff struct {
 	repo vcs.Repository
 }
 
-func (c CodeReview) GetFile(fileDiff entity.FileDiff, fromBranch string) (entity.FullFileDiff, error){
+func (d Diff) GetFile(fileDiff entity.FileDiff, fromBranch string) (entity.FullFileDiff, error){
 	fromFilePath := fileDiff.FileDiffHeader.FromFilePath
 	toFilePath := fileDiff.FileDiffHeader.ToFilePath
 
@@ -19,7 +18,7 @@ func (c CodeReview) GetFile(fileDiff entity.FileDiff, fromBranch string) (entity
 		return entity.FullFileDiff{}, err
 	}
 
-	fileContent, err := c.repo.GetTextFileContentFromBranch(fromBranch, filePath)
+	fileContent, err := d.repo.GetTextFileContentFromBranch(fromBranch, filePath)
 	if err != nil {
 		return entity.FullFileDiff{}, err
 	}
@@ -32,25 +31,8 @@ func (c CodeReview) GetFile(fileDiff entity.FileDiff, fromBranch string) (entity
 	}, nil
 }
 
-func pickFilePath (fromFilePath string, toFilePath string) (string, error) {
-	if len(fromFilePath) == 0 && len(toFilePath) == 0 {
-		return "", errors.New("invalid fileDiff")
-	}
-
-	if len(fromFilePath) == 0 {
-		return toFilePath, nil
-	}
-
-	if len(toFilePath) == 0 {
-		return toFilePath, nil
-	}
-
-	return toFilePath, nil
-}
-
-func NewCodeReview(repo vcs.Repository) CodeReview {
-	return CodeReview{
+func NewDiff(repo vcs.Repository) Diff {
+	return Diff{
 		repo: repo,
 	}
 }
-

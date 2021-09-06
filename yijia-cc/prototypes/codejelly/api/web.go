@@ -12,18 +12,19 @@ CodeReviewService: depends on a repo
 	- List PRs that need attention
 	- List "Opened By Me"
 	- List "Reviewed By Me"
-	- List "Merged"
-	- Find PR by ID ( should include file diff headers & stats)
-- PR Actions
+	- List "Merged By Me"
+- Find PR by ID ( should include file diff headers & stats)
+- PR
 	- Open PR
-	- Approve PR
-	- Request Changes PR
-	- Abandon PR
-	- Merge PR
-		- List Merge Options (rebase, squash, etc.)
+	- Take PR Actions
+		- Approve PR
+		- Request Changes PR
+		- Abandon PR
+		- Merge PR
+			- List Merge Options (rebase, squash, etc.)
 - Reviewer
 	- Add reviewers to PR
-	- Edit reviewers to PR
+	- Delete reviewers to PR
 	- List reviewers
 - Comment
 	- Leave comments

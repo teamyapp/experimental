@@ -9,6 +9,7 @@ type PullRequest struct {
 	description string
 	author      User
 	reviewers   []Reviewer
+	mergedBy	*User
 
 	repo             string
 	sourceBranch     string
@@ -33,29 +34,76 @@ const (
 	//unresolved
 	prApproved
 	prMerged
-	prClosed
+	prAbandoned
 )
 
 type PullRequestAction int
 
 const (
-	actionApprove PullRequestAction = iota
-	actionClose
-	actionMerge
-	actionSquashAndMerge
-	actionRebaseAndMerge
+	PullRequestActionOpen PullRequestAction = iota
+	PullRequestActionApprove
+	PullRequestActionRequestChanges
+	PullRequestActionAbandon
+	PullRequestActionMerge
+)
+
+type MergeOption int
+
+const (
+	CreateMergeCommit MergeOption = iota
+	SquashAndMerge
+	RebaseAndMerge
+)
+
+type Repository struct {
+	id int
+	name string
+	vcsType VersionControlType
+	url string
+}
+
+type RepoHostingProvider struct {
+
+}
+
+type VersionControlType int
+
+const (
+	Git VersionControlType = iota
+	Mercurial
+	Piper
+)
+
+type HostingCredential struct {
+	sshKey string
+	apiKey string
+	certificate string
+}
+
+type HostingServiceType int
+
+const (
+	Github HostingServiceType = iota
+	Gitlab
 )
 
 type Reviewer struct {
 	user   User
+	isCodeOwner bool
 	status ReviewStatus
 }
+type EditReviewerAction int
+
+const (
+	AssignReviewer EditReviewerAction = iota
+	RemoveReviewer
+)
 
 type ReviewStatus int
 
 const (
-	rsNotViewed ReviewStatus = iota
-	rsUnresolvedComment
+	rsToReview ReviewStatus = iota
+	rsCommentUnresolved
 	rsApproved
 )
 
@@ -84,6 +132,21 @@ type Comment struct {
 	content   string
 	createdAt time.Time
 }
+
+type ThreadAction int
+
+const (
+	ThreadActionMarkResolved ThreadAction = iota
+	ThreadActionMarkUnresolved
+	ThreadActionAddComment
+)
+
+type CommentAction int
+
+const (
+	CommentActionEdit CommentAction = iota
+	CommentActionDelete
+)
 
 type Selection struct {
 	startLine   int
