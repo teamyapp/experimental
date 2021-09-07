@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/hosting"
+	"time"
+)
 
 //  1. Pull Request Info
 type PullRequest struct {
@@ -55,15 +58,38 @@ const (
 	RebaseAndMerge
 )
 
-type Repository struct {
+type HostingProviderType string
+
+type Team struct {
+	Id int
+	Name string
+	Repositories []Repository
+	Members []User
+	HostingProviderCredential map[HostingProviderType]Credential
+}
+
+type Credential struct {
 	id int
 	name string
-	vcsType VersionControlType
-	url string
+	providerName string
+	credentialType CredentialType
+	value string
+}
+
+type CredentialType int
+
+type Repository struct {
+	Id int
+	Name string
+	VCSType VersionControlType
+	RootDirectory string
+	ProviderType HostingProviderType
+	HostingCredentialId int
+	HostingSecret string
 }
 
 type RepoHostingProvider struct {
-
+	Type RepoHostingProviderType
 }
 
 type VersionControlType int
@@ -74,11 +100,7 @@ const (
 	Piper
 )
 
-type HostingCredential struct {
-	sshKey string
-	apiKey string
-	certificate string
-}
+
 
 type HostingServiceType int
 
