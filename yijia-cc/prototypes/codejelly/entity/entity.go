@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"github.com/teamyapp/experimental/yijia-cc/prototypes/codejelly/hosting"
+	"time"
+)
 
 //  1. Pull Request Info
 type PullRequest struct {
@@ -9,6 +12,7 @@ type PullRequest struct {
 	description string
 	author      User
 	reviewers   []Reviewer
+	mergedBy	*User
 
 	repo             string
 	sourceBranch     string
@@ -21,7 +25,7 @@ type PullRequest struct {
 	comments []Comment
 	//commits  []Commit
 
-	//aggregatedFileChanges
+	fullFileDiffs []FullFileDiff
 }
 
 // type Policy struct {}
@@ -33,29 +37,95 @@ const (
 	//unresolved
 	prApproved
 	prMerged
-	prClosed
+	prAbandoned
 )
 
 type PullRequestAction int
 
 const (
-	actionApprove PullRequestAction = iota
-	actionClose
-	actionMerge
-	actionSquashAndMerge
-	actionRebaseAndMerge
+	PullRequestActionOpen PullRequestAction = iota
+	PullRequestActionApprove
+	PullRequestActionRequestChanges
+	PullRequestActionAbandon
+	PullRequestActionMerge
+)
+
+type MergeOption int
+
+const (
+	CreateMergeCommit MergeOption = iota
+	SquashAndMerge
+	RebaseAndMerge
+)
+
+type HostingProviderType string
+
+type Team struct {
+	Id int
+	Name string
+	Repositories []Repository
+	Members []User
+	HostingProviderCredential map[HostingProviderType]Credential
+}
+
+type Credential struct {
+	id int
+	name string
+	providerName string
+	credentialType CredentialType
+	value string
+}
+
+type CredentialType int
+
+type Repository struct {
+	Id int
+	Name string
+	VCSType VersionControlType
+	RootDirectory string
+	ProviderType HostingProviderType
+	HostingCredentialId int
+	HostingSecret string
+}
+
+type RepoHostingProvider struct {
+	Type RepoHostingProviderType
+}
+
+type VersionControlType int
+
+const (
+	Git VersionControlType = iota
+	Mercurial
+	Piper
+)
+
+
+
+type HostingServiceType int
+
+const (
+	Github HostingServiceType = iota
+	Gitlab
 )
 
 type Reviewer struct {
 	user   User
+	isCodeOwner bool
 	status ReviewStatus
 }
+type EditReviewerAction int
+
+const (
+	AssignReviewer EditReviewerAction = iota
+	RemoveReviewer
+)
 
 type ReviewStatus int
 
 const (
-	rsNotViewed ReviewStatus = iota
-	rsUnresolvedComment
+	rsToReview ReviewStatus = iota
+	rsCommentUnresolved
 	rsApproved
 )
 
@@ -85,6 +155,21 @@ type Comment struct {
 	createdAt time.Time
 }
 
+type ThreadAction int
+
+const (
+	ThreadActionMarkResolved ThreadAction = iota
+	ThreadActionMarkUnresolved
+	ThreadActionAddComment
+)
+
+type CommentAction int
+
+const (
+	CommentActionEdit CommentAction = iota
+	CommentActionDelete
+)
+
 type Selection struct {
 	startLine   int
 	startColumn int
@@ -94,14 +179,39 @@ type Selection struct {
 
 // 3. Code Diff
 /*
+complexity:
+- tech stack
+	- system design
+	- git/github
+	- go
+	- db
+	- caching
+	- concurrency
+	- distributed storage
+- learn from the project
+	- git command
+- problem solving difficulty
+- product impact (long term/ short term)
+- extensibility
+
 layer 1: git diff
 layer 2: unorganized hunks
 layer 3: group unchanged chunks and hunks into file change pair
-layer 4: feed data for split view and unified view
-layer 5: render UI at frontend
+- contains all data that is needed in layer 4 and layer 5 now and in the future
+
+layer 4: compute statistics
+layer 5: feed data for split view and unified view
+layer 6: Web APIs, gRPC, GraphQL
+layer 7: render UI at frontend with React
+
+//TODO: show code change in file side by side
+
+
 */
 
-
+// Web API
+// React App: TypeScript + SCSS, Storybook
+// Individual component
 
 
 //type Commit struct {
@@ -128,42 +238,6 @@ layer 5: render UI at frontend
 //	isRenamed   bool
 //}
 
-
-
-//layer 4: calculate statistics
-type DiffStatistics struct {
-	totalNumOfLines   int
-	numOfDeletedLines int
-	numOfAddedLines   int
-}
-
-type DiffMetadata struct {
-	FileDiffHeader
-	DiffStatistics
-}
-
-type ChunkPair struct {
-	oldFileChunk Chunk
-	newFileChunk Chunk
-}
-
-// layer 5: feed data for split view and unified view
-// Backend For Frontend
-// ============Response body===============
-
-
-type SplitDiff struct {
-	DiffMetadata
-	allChunkPairs []ChunkPair
-	// Indices of changed chunk pair
-	hunkPairIndices []int
-}
-
-type UnifiedDiff struct {
-	DiffMetadata
-	allChunks   []Chunk
-	hunkIndices []int
-}
 
 // [l1, l2, l3, ...]
 //

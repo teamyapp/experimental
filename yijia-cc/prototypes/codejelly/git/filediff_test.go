@@ -132,12 +132,9 @@ index 0000000..edc67e8
 						FromFileNumOfLines: 0,
 						ToFileStartLine: 1,
 						ToFileNumOfLines: 1,
+						HeaderLine: "",
 					},
 					Lines: []entity.Line{
-						{
-							Status: entity.LineHunkHeader,
-							Content: "",
-						},
 						{
 							Status: entity.LineAdded,
 							Content: "REACT_APP_AUTH_API_BASE_URL=http://auth.api.staging.allgame.fun",
@@ -164,12 +161,9 @@ index 345e6ae..0000000
 						FromFileNumOfLines: 1,
 						ToFileStartLine: 0,
 						ToFileNumOfLines: 0,
+						HeaderLine: "",
 					},
 					Lines: []entity.Line{
-						{
-							Status: entity.LineHunkHeader,
-							Content: "",
-						},
 						{
 							Status: entity.LineDeleted,
 							Content: "Test",
@@ -221,13 +215,10 @@ index 3d739dc..40b8555 100644
 						FromFileNumOfLines: 7,
 						ToFileStartLine:    9,
 						ToFileNumOfLines:   8,
+						HeaderLine: "import info.grouplive.discussion.exceptions.PostNotFoundException;",
 					},
 
 					Lines: []entity.Line{
-						{
-							Status: entity.LineHunkHeader,
-							Content: "import info.grouplive.discussion.exceptions.PostNotFoundException;",
-						},
 						{
 							Status:  entity.LineUnchanged,
 							Content: "import info.grouplive.discussion.mapper.CommentMapper;",
@@ -256,13 +247,10 @@ index 3d739dc..40b8555 100644
 						FromFileNumOfLines: 7,
 						ToFileStartLine:    45,
 						ToFileNumOfLines:   7,
+						HeaderLine: "public class CommentService {",
 					},
 
 					Lines: []entity.Line{
-						{
-							Status: entity.LineHunkHeader,
-							Content: "public class CommentService {",
-						},
 						{
 							Status:  entity.LineUnchanged,
 							Content: "    }",
@@ -306,7 +294,7 @@ index 3d739dc..40b8555 100644
 		testCase := testCase
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
-			actual, err := newHunkFromBlock(testCase.input)
+			actual, _, err := NewHunksFromBlock(testCase.input)
 			if testCase.expectedHasErr {
 				assert.NotNil(t, err)
 				return
@@ -371,7 +359,6 @@ index 0000000..dbc2c89
 +++ b/discussion/src/main/resources/.env_local`,
 			expected: entity.FileDiffHeader{
 				Status: entity.ChangeAdded,
-				FromFilePath: "/dev/null",
 				ToFilePath: "discussion/src/main/resources/.env_local",
 				Similarity: 0,
 			},
@@ -388,7 +375,6 @@ index 015c776..0000000
 			expected: entity.FileDiffHeader{
 				Status: entity.ChangeDeleted,
 				FromFilePath: "dashboard/controller/controller.go",
-				ToFilePath: "/dev/null",
 				Similarity: 0,
 			},
 			expectedHasErr: false,
@@ -525,13 +511,10 @@ index 3d739dc..40b8555 100644
 							FromFileNumOfLines: 7,
 							ToFileStartLine:    9,
 							ToFileNumOfLines:   8,
+							HeaderLine: "import info.grouplive.discussion.exceptions.PostNotFoundException;",
 						},
 
 						Lines: []entity.Line{
-							{
-								Status: entity.LineHunkHeader,
-								Content: "import info.grouplive.discussion.exceptions.PostNotFoundException;",
-							},
 							{
 								Status:  entity.LineUnchanged,
 								Content: "import info.grouplive.discussion.mapper.CommentMapper;",
@@ -560,13 +543,10 @@ index 3d739dc..40b8555 100644
 							FromFileNumOfLines: 7,
 							ToFileStartLine:    45,
 							ToFileNumOfLines:   7,
+							HeaderLine: "public class CommentService {",
 						},
 
 						Lines: []entity.Line{
-							{
-								Status: entity.LineHunkHeader,
-								Content: "public class CommentService {",
-							},
 							{
 								Status:  entity.LineUnchanged,
 								Content: "    }",
@@ -602,6 +582,7 @@ index 3d739dc..40b8555 100644
 						},
 					},
 				},
+				HasNoNewLineSymbol: false,
 			},
 		},
 	}

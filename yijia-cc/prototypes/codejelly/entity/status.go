@@ -54,14 +54,12 @@ const (
 	LineDeleted
 	LineAdded
 	LineNothing
-	LineHunkHeader
 )
 
 var lineStatusNames = map[LineStatus]string{
 	LineUnchanged:    "Unchanged",
 	LineDeleted: "Deleted",
 	LineAdded:  "Added",
-	LineHunkHeader:  "HunkHeader",
 	LineNothing: "Nothing",
 }
 

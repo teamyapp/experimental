@@ -401,8 +401,8 @@ func newGroupLiveAuthClient(cfg config.Config) (auth.GroupLiveAuthClient, error)
 				assert.Fail(t, "fail")
 			}
 			g := git.NewRepo("/Users/yijiacc/Documents/projects/laiprojects/grouplive")
-			codeReview := NewCodeReview(g)
-			actual, err := codeReview.GetFile(fileDiff, "yijia-cc/feature-find-amenity-type")
+			diff := NewDiff(g)
+			actual, err := diff.GetFile(fileDiff, "yijia-cc/feature-find-amenity-type")
 			if testCase.expectedHasErr {
 				assert.NotNil(t, err)
 				return

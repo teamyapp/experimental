@@ -76,14 +76,15 @@ const (
 	deletedLinePrefix string = "-"
 )
 
-func newHunkFromBlock(block string) ([]entity.Hunk, error) {
+func NewHunksFromBlock(block string) ([]entity.Hunk, bool, error) {
 	if len(block) == 0 {
-		return nil, nil
+		return nil, false, nil
 	}
 
 	block = strings.TrimPrefix(block, " ")
 	lines := strings.Split(block, "\n")
 
+	hasNoNewLineSymbol := false
 	// increment hunkCounter when line match lineChangeStatPattern
 	hunkCounter := 0
 	hunks := make([]entity.Hunk, 0)
@@ -98,8 +99,12 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 		}
 
 		// index info is not needed, hence it is skipped
-		if strings.HasPrefix(line, noNewLinePrefix) ||
-			strings.HasPrefix(line, indexPrefix) {
+		if strings.HasPrefix(line, indexPrefix) {
+			continue
+		}
+
+		if strings.HasPrefix(line, noNewLinePrefix) {
+			hasNoNewLineSymbol = true
 			continue
 		}
 
@@ -108,16 +113,11 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 
 			hunkHeader, err = parseLineIntoStatString(line)
 			if err != nil {
-				return nil, err
+				return nil, false, err
 			}
 
 			hunkCounter += 1
 			hunkLines = make([]entity.Line, 0)
-			hunkLines = append(hunkLines, entity.Line{
-				Status: entity.LineHunkHeader,
-
-				Content: trimLineHunkHeader(line),
-			})
 
 		} else if strings.HasPrefix(line, noChangeLinePrefix){
 			hunkLines = append(hunkLines, entity.Line{
@@ -139,7 +139,7 @@ func newHunkFromBlock(block string) ([]entity.Hunk, error) {
 
 	hunks = tryAddPrevHunk(hunkCounter, hunks, hunkHeader, hunkLines)
 
-	return hunks, nil
+	return hunks, hasNoNewLineSymbol, nil
 }
 
 // TODO: clearly define semantics of block
@@ -180,9 +180,12 @@ func newFileDiffHeaderFromBlock(block string) (entity.FileDiffHeader, error) {
 		}
 	}
 
-	status = getFileStatusFromFileName(fromFilePath, toFilePath)
+	status, err = getFileStatusFromFileName(fromFilePath, toFilePath)
+	if err != nil {
+		return entity.FileDiffHeader{}, err
+	}
 
-	if len(fromFilePath) == 0 || len(toFilePath) == 0 {
+	if len(fromFilePath) == 0 && len(toFilePath) == 0 {
 		return entity.FileDiffHeader{}, errors.New("invalid git diff hunk")
 	}
 
@@ -200,8 +203,11 @@ func NewFileDiffFromBlock(block string) (entity.FileDiff, error) {
 	}
 
 	fileDiffHeader, err := newFileDiffHeaderFromBlock(block)
+	if err != nil {
+		return entity.FileDiff{}, err
+	}
 
-	hunks, err := newHunkFromBlock(block)
+	hunks, hasNoNewLineSymbol, err := NewHunksFromBlock(block)
 	if err != nil {
 		return entity.FileDiff{}, err
 	}
@@ -209,6 +215,7 @@ func NewFileDiffFromBlock(block string) (entity.FileDiff, error) {
 	return entity.FileDiff{
 		FileDiffHeader: fileDiffHeader,
 		Hunks:            hunks,
+		HasNoNewLineSymbol: hasNoNewLineSymbol,
 	}, nil
 }
 

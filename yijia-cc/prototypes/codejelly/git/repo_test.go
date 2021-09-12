@@ -251,13 +251,10 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 								FromFileNumOfLines: 7,
 								ToFileStartLine:    9,
 								ToFileNumOfLines:   8,
+								HeaderLine: "import info.grouplive.discussion.exceptions.PostNotFoundException;",
 							},
 
 							Lines: []entity.Line{
-								{
-									Status: entity.LineHunkHeader,
-									Content: "import info.grouplive.discussion.exceptions.PostNotFoundException;",
-								},
 								{
 									Status:  entity.LineUnchanged,
 									Content: "import info.grouplive.discussion.mapper.CommentMapper;",
@@ -286,13 +283,10 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 								FromFileNumOfLines: 7,
 								ToFileStartLine:    45,
 								ToFileNumOfLines:   7,
+								HeaderLine: "public class CommentService {",
 							},
 
 							Lines: []entity.Line{
-								{
-									Status: entity.LineHunkHeader,
-									Content: "public class CommentService {",
-								},
 								{
 									Status:  entity.LineUnchanged,
 									Content: "    }",
@@ -332,7 +326,6 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 				{
 					FileDiffHeader: entity.FileDiffHeader{
 						Status:       entity.ChangeAdded,
-						FromFilePath: "/dev/null",
 						ToFilePath:   "web/.env.development",
 						Similarity:   0,
 					},
@@ -343,13 +336,10 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 								FromFileNumOfLines: 0,
 								ToFileStartLine:    1,
 								ToFileNumOfLines:   1,
+								HeaderLine: "",
 							},
 
 							Lines: []entity.Line{
-								{
-									Status: entity.LineHunkHeader,
-									Content: "",
-								},
 								{
 									Status:  entity.LineAdded,
 									Content: "REACT_APP_AUTH_API_BASE_URL=http://auth.api.staging.allgame.fun",
@@ -357,6 +347,7 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 							},
 						},
 					},
+					HasNoNewLineSymbol: true,
 				},
 			},
 		},
@@ -368,7 +359,6 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 				{
 					FileDiffHeader: entity.FileDiffHeader{
 						Status: entity.ChangeAdded,
-						FromFilePath: "/dev/null",
 						ToFilePath: "src/main/resources/static/img/addPics.png",
 						Similarity: 0,
 					},
@@ -401,7 +391,6 @@ func TestParseFileDiffsFromOutput(t *testing.T) {
 					FileDiffHeader: entity.FileDiffHeader{
 						Status: entity.ChangeDeleted,
 						FromFilePath: "src/main/resources/static/img/addPics.png",
-						ToFilePath: "/dev/null",
 						Similarity: 0,
 					},
 					Hunks: []entity.Hunk{},
