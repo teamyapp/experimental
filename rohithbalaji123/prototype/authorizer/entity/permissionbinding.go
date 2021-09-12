@@ -1,14 +1,16 @@
 package entity
 
-type HasPermissionRequest struct {
+// HasPermissionQuery In future, we might have groups, teams and organisations which will require us to maintain a graph
+// of user groups. Hence the user id(maybe, group id) is required in this query.
+type HasPermissionQuery struct {
     PermissionType string
     ResourceId string
     ResourceType string
     UserId string
 }
 
-func NewHasPermissionRequest(permissionType, resourceId, resourceType, userId string) HasPermissionRequest {
-    return HasPermissionRequest{
+func NewHasPermissionQuery(permissionType, resourceId, resourceType, userId string) HasPermissionQuery {
+    return HasPermissionQuery{
         PermissionType: permissionType,
         ResourceId:     resourceId,
         ResourceType:   resourceType,
@@ -32,7 +34,7 @@ func NewPermissionBindingEntity(permissionType, resourceId, resourceType, userId
     }
 }
 
-func (p PermissionBindingEntity) Equals(request HasPermissionRequest) bool {
+func (p PermissionBindingEntity) Equals(request HasPermissionQuery) bool {
     return p.PermissionType == request.PermissionType &&
             p.ResourceId == request.ResourceId &&
             p.ResourceType == request.ResourceType &&

@@ -1,6 +1,6 @@
 package repo
 
-import "experimental/rohithbalaji123/permission-hierarchy-prototype/entity"
+import "experimental/rohithbalaji123/prototype/authorizer/entity"
 
 type PermissionHierarchyRepo struct {
     entities []entity.PermissionHierarchyEntity
@@ -10,10 +10,6 @@ func NewPermissionHierarchyRepo() PermissionHierarchyRepo {
     p := PermissionHierarchyRepo{
         entities: make([]entity.PermissionHierarchyEntity, 0),
     }
-    p.entities = append(p.entities, entity.NewPermissionHierarchyEntity("read", "project", "read", "team"))
-    p.entities = append(p.entities, entity.NewPermissionHierarchyEntity("read", "project", "write", "project"))
-    p.entities = append(p.entities, entity.NewPermissionHierarchyEntity("write", "project", "write", "team"))
-
     return p
 }
 
@@ -25,4 +21,8 @@ func (p PermissionHierarchyRepo) FindParentPermissions(childPermissionType, chil
         }
     }
     return response[:]
+}
+
+func (p PermissionHierarchyRepo) Add(hierarchyEntity entity.PermissionHierarchyEntity) {
+    p.entities = append(p.entities, hierarchyEntity)
 }

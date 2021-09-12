@@ -1,7 +1,7 @@
 package entity
 
 type ResourceHierarchyEntity struct {
-    ChildId           string
+    ChildId            string
     ChildResourceType  string
     ParentId           string
     ParentResourceType string
