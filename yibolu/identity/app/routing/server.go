@@ -1,6 +1,7 @@
 package routing
 
 import (
+	"github.com/teamyapp/experimental/yibolu/identity/app/oauth"
 	"net/http"
 
 	"github.com/teamyapp/experimental/yibolu/identity/app/dao"
@@ -11,6 +12,7 @@ import (
 )
 
 func NewServer(
+	oauthProviders []oauth.OAuth,
 	idGenerator idgen.IDGenerator,
 	userDao dao.User,
 	externalUserDao dao.ExternalUser,
@@ -19,7 +21,7 @@ func NewServer(
 
 	serveMux := http.NewServeMux()
 	router := mux.NewRouter()
-	routes := getRoutes(idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher)
+	routes := getRoutes(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher)
 	for _, r := range routes {
 		router.HandleFunc(r.path, r.handleFunc).Methods(r.method)
 	}
