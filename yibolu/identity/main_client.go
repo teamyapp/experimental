@@ -18,6 +18,7 @@ const googleClientSecret = "u0Z-ldhCar1TYWqOByBPSCp6"
 var (
 	googleOauthConfig *oauth2.Config
 )
+
 func init() {
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "http://localhost:8080/callback",
