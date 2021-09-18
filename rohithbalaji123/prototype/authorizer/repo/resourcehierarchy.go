@@ -1,6 +1,6 @@
 package repo
 
-import "experimental/rohithbalaji123/permission-hierarchy-prototype/entity"
+import "experimental/rohithbalaji123/prototype/authorizer/entity"
 
 type ResourceHierarchyRepo struct {
     entities []entity.ResourceHierarchyEntity
@@ -10,8 +10,6 @@ func NewResourceHierarchyRepo() ResourceHierarchyRepo {
     r := ResourceHierarchyRepo{
         entities: make([]entity.ResourceHierarchyEntity, 0),
     }
-
-    r.entities = append(r.entities, entity.NewResourceHierarchyEntity("project-1", "project", "team-1", "team"))
     return r
 }
 
@@ -29,4 +27,8 @@ func (r ResourceHierarchyRepo) FindParentResourceIds(parentResourceType, childId
         }
     }
     return response[:]
+}
+
+func (r ResourceHierarchyRepo) Add(hierarchyEntity entity.ResourceHierarchyEntity) {
+    r.entities = append(r.entities, hierarchyEntity)
 }

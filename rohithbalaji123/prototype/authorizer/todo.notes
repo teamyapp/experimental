@@ -1,0 +1,28 @@
+// TODO: Rename service to Authorizer
+Done
+
+// TODO: Figure out storage. DB? Custom serialisation directly on disk?
+Going ahead with DB
+
+// TODO: Design in memory cache to optimise queries
+// TODO: CRUD operations for the permissions and hierarchies
+// TODO: Make this into a library, which can be run locally without external db or be hosted as a service
+// TODO: Integrate multi-level logger
+// TODO: Verify existence of cycles while adding permission and resource hierarchies
+// TODO: Rename parent to dependent and document the need for self loop in resource hierarchy
+// TODO: rename hierarchy to graph
+
+
+// TODO: Make sure permissions are consistent
+// TODO: Batch query requests
+// TODO: FB memcached leasing paper for supporting repeated concurrent requests
+// TODO: Handle asynchronous requests (client library? Or client to request-id in requests?)
+// TODO: Add automated tests for the core algorithm and cache(if custom cache support)
+// TODO: Add automated tests for async requests
+// TODO: Automatic recovery between primary and secondary
+// TODO: Replicate data between primary and secondary
+// TODO: Build a tool to visualise the permission and resource hierarchies (graph)
+// TODO: Automatic retry on failure
+// TODO: Health check system, scheduled load/distributed/perf test system
+
+// edit permission for a project also implies read permission for that project
