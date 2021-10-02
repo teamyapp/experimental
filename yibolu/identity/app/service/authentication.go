@@ -51,9 +51,9 @@ func (s Identity) FinishOAuthSignIn(w http.ResponseWriter, r *http.Request, oaut
 		return nil
 	}
 
-	oauth.GetUserInfo(w, r)
+	userInfo, _ := oauth.GetUserInfo(w, r)
 
-	jwt := s.jwtAuthority.GenerateJWT(clientId, authorizationCode)
+	jwt := s.jwtAuthority.GenerateJWT(clientId, string(userInfo))
 	s.pubsub.Publish(clientId, jwt)
 
 	return nil

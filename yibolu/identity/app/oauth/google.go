@@ -36,7 +36,7 @@ func (g Google) RedirectToLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-func (g Google) GetUserId(w http.ResponseWriter, r *http.Request) ([]byte, error) {
+func (g Google) GetUserInfo(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 	content, err := g.getUserInfo(r.FormValue("state"), r.FormValue("code"))
 	if err != nil {
 		fmt.Println(err.Error())

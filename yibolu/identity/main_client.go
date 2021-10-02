@@ -15,8 +15,8 @@ import (
 const clientID = "4da1b4a1f09b0ba7a81e"
 const clientSecret = "7ebe0c784eaa7f836d373bb0ced17ee0bffda1dd"
 
-const googleClientID = "893937988570-u5doflho5jj6169767q4svnl693f41eq.apps.googleusercontent.com"
-const googleClientSecret = "u0Z-ldhCar1TYWqOByBPSCp6"
+const googleClientID = "893937988570-76ue298clpd8fcjho532phrbjfnbl61d.apps.googleusercontent.com"
+const googleClientSecret = "h8kUGn8q8vfR5_WTxjP-OeNL"
 
 var (
 	googleOauthConfig *oauth2.Config
@@ -71,6 +71,7 @@ func getUserInfo(state string, code string) ([]byte, error) {
 		return nil, fmt.Errorf("invalid oauth state")
 	}
 
+	fmt.Println(code)
 	token, err := googleOauthConfig.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		return nil, fmt.Errorf("code exchange failed: %s", err.Error())
@@ -86,13 +87,15 @@ func getUserInfo(state string, code string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed reading response body: %s", err.Error())
 	}
+
+	fmt.Println(contents)
 	return contents, nil
 }
 
 func main() {
 	http.HandleFunc("/", handleMain)
 	http.HandleFunc("/login", handleGoogleLogin)
-	http.HandleFunc("/callback/clients/:clientId", handleGoogleCallback)
+	http.HandleFunc("/callback", handleGoogleCallback)
 	http.ListenAndServe(":8080", nil)
 }
 
