@@ -2,6 +2,7 @@ package routing
 
 import (
 	"github.com/teamyapp/experimental/yibolu/identity/app/oauth"
+	"github.com/teamyapp/experimental/yibolu/identity/app/queue"
 	"net/http"
 
 	"github.com/teamyapp/experimental/yibolu/identity/app/dao"
@@ -22,7 +23,8 @@ func getRoutes(
 	userDao dao.User,
 	externalUserDao dao.ExternalUser,
 	jwtAuthority security.JWTAuthority,
-	caesarCipher security.CaesarCipher) []route {
+	caesarCipher security.CaesarCipher,
+	queue queue.MessageQueue) []route {
 
 	authenticationService := service.NewIdentity(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher)
 	return []route{

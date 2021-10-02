@@ -1,28 +1,23 @@
 package service
 
 import (
+	"fmt"
+	"github.com/teamyapp/experimental/yibolu/identity/app/channel"
 	"github.com/teamyapp/experimental/yibolu/identity/app/dao"
 	"github.com/teamyapp/experimental/yibolu/identity/app/idgen"
 	"github.com/teamyapp/experimental/yibolu/identity/app/oauth"
-	"github.com/teamyapp/experimental/yibolu/identity/app/queue"
+	"github.com/teamyapp/experimental/yibolu/identity/app/pubsub"
 	"github.com/teamyapp/experimental/yibolu/identity/app/security"
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
-
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
 
 var timeWait = time.Second * 300 // 5 minutes
 
 type Authentication interface {
 	RequestOAuthSignIn(w http.ResponseWriter, r *http.Request, oauthProvider string, clientId string) error
-	FinishOAuthSignIn(w http.ResponseWriter, r *http.Request, oauthProvider string, clientId string, authorizationCode string) error
+	FinishOAuthSignIn(w http.ResponseWriter, r *http.Request, oauthProvider string, clientId string) error
 	ValidateAuthToken(authToken string) error
 }
 
@@ -33,58 +28,66 @@ type Identity struct {
 	jwtAuthority    security.JWTAuthority
 	caesarCipher    security.CaesarCipher
 	oauth           map[string] oauth.OAuth
-	queue    		queue.MessageQueue
+	pubsub    		pubsub.PubSub
 }
 
 func (s Identity) RequestOAuthSignIn(w http.ResponseWriter, r *http.Request, oauthProvider string, clientId string) error {
-	panic("not implemented")
+	if oauthHandler, ok := s.oauth[oauthProvider]; ok {
+		expiration := time.Now().Add(5 * time.Minute)
+		cookie := http.Cookie{Name: "clientId", Value: clientId, Expires: expiration}
+		http.SetCookie(w, &cookie)
+
+		oauthHandler.RedirectToLogin(w, r)
+	}
+
+	return nil
 }
 
-func (s Identity) FinishOAuthSignIn(oauthProvider string, clientId string, authorizationCode string) error {
-	panic("not implemented")
+func (s Identity) FinishOAuthSignIn(w http.ResponseWriter, r *http.Request, oauthProvider string, clientId string) error {
+	oauth, ok := s.oauth[oauthProvider]
+
+	if !ok {
+		log.Println("Unknown OauthProvider: " + oauthProvider)
+		return nil
+	}
+
+	oauth.GetUserInfo(w, r)
+
+	jwt := s.jwtAuthority.GenerateJWT(clientId, authorizationCode)
+	s.pubsub.Publish(clientId, jwt)
+
+	return nil
 }
 
 func (s Identity) SubscribeClient(w http.ResponseWriter, r *http.Request, clientID string) error {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	defer conn.Close()
 
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	clientChannel := channel.NewWebSocketChannel(w, r)
 
-	err = s.queue.Subscribe(clientID)
-	if err != nil {
-		log.Fatal("SubscribeClient: ", err)
-		return err
-	}
+	go func() {
+		defer clientChannel.Disconnect()
+		onJwtReceive := make(chan string)
 
-	go s.queue.GetJWT(clientID, func(jwt string) {
-		conn.SetWriteDeadline(time.Now().Add(timeWait))
-		conn.NextWriter(websocket.TextMessage)
+		subscription := s.pubsub.Subscribe(clientID, func(data interface{}) {
+			onJwtReceive <- fmt.Sprint(data) // cast to string
+		})
+		defer subscription.Unsubscribe()
 
-		w, err := conn.NextWriter(websocket.TextMessage)
-		if err != nil {
-			log.Fatal(err)
-			return
+		select {
+		case jwt := <- onJwtReceive:
+			// Send JWT signed by Identity service
+			clientChannel.SendMessage(jwt)
+		case <- time.After(time.Minute * 5):
 		}
+	}()
 
-		w.Write([]byte(jwt))
-
-		if err = w.Close(); err != nil {
-			log.Fatal(err)
-			return
-		}
-	})
-
-	return err
+	return nil
 }
 
 func (s Identity) ValidateAuthToken(authToken string) error {
 	panic("not implemented")
 }
 
-func NewIdentity(oauthProviders []oauth.OAuth, idGenerator idgen.IDGenerator, userDao dao.User, externalUserDao dao.ExternalUser, jwtAuthority security.JWTAuthority, caesarCipher security.CaesarCipher, queue queue.MessageQueue) Identity {
+func NewIdentity(oauthProviders []oauth.OAuth, idGenerator idgen.IDGenerator, userDao dao.User, externalUserDao dao.ExternalUser, jwtAuthority security.JWTAuthority, caesarCipher security.CaesarCipher) Identity {
 	oauth := make(map[string] oauth.OAuth)
 	for _, provider := range oauthProviders {
 		oauth[provider.GetName()] = provider
@@ -97,6 +100,8 @@ func NewIdentity(oauthProviders []oauth.OAuth, idGenerator idgen.IDGenerator, us
 		jwtAuthority:    jwtAuthority,
 		caesarCipher:    caesarCipher,
 		oauth:		     oauth,
-		queue:    		 queue,
+		pubsub:    		 pubsub.NewChannelPubSub(),
 	}
 }
+
+var _ Authentication = (*Identity)(nil)

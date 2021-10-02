@@ -2,6 +2,7 @@ package routing
 
 import (
 	"github.com/teamyapp/experimental/yibolu/identity/app/oauth"
+	"github.com/teamyapp/experimental/yibolu/identity/app/queue"
 	"net/http"
 
 	"github.com/teamyapp/experimental/yibolu/identity/app/dao"
@@ -17,11 +18,12 @@ func NewServer(
 	userDao dao.User,
 	externalUserDao dao.ExternalUser,
 	jwtAuthority security.JWTAuthority,
-	caesarCipher security.CaesarCipher) *http.ServeMux {
+	caesarCipher security.CaesarCipher,
+	queue queue.MessageQueue) *http.ServeMux {
 
 	serveMux := http.NewServeMux()
 	router := mux.NewRouter()
-	routes := getRoutes(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher)
+	routes := getRoutes(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher, queue)
 	for _, r := range routes {
 		router.HandleFunc(r.path, r.handleFunc).Methods(r.method)
 	}

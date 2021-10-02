@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"time"
+
 	//"os"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -44,6 +47,9 @@ var (
 )
 func handleGoogleLogin(w http.ResponseWriter, r *http.Request) {
 	url := googleOauthConfig.AuthCodeURL(oauthStateString)
+	expiration := time.Now().Add(5 * time.Minute)
+	cookie := http.Cookie{Name: "clientId", Value: "lubo0319", Expires: expiration}
+	http.SetCookie(w, &cookie)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
@@ -54,6 +60,9 @@ func handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+	cookie, _ := r.Cookie("clientId")
+	clientID := cookie.Value
+	log.Println(clientID)
 	fmt.Fprintf(w, "Content: %s\n", content)
 }
 
@@ -83,7 +92,7 @@ func getUserInfo(state string, code string) ([]byte, error) {
 func main() {
 	http.HandleFunc("/", handleMain)
 	http.HandleFunc("/login", handleGoogleLogin)
-	http.HandleFunc("/callback", handleGoogleCallback)
+	http.HandleFunc("/callback/clients/:clientId", handleGoogleCallback)
 	http.ListenAndServe(":8080", nil)
 }
 

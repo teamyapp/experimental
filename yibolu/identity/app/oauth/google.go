@@ -30,19 +30,21 @@ func NewGoogle() Google {
 	}
 }
 
-func (g Google) HandleLogin(w http.ResponseWriter, r *http.Request) {
+func (g Google) RedirectToLogin(w http.ResponseWriter, r *http.Request) {
 	url := g.googleOauthConfig.AuthCodeURL(oauthStateString)
+
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-func (g Google) HandleCallback(w http.ResponseWriter, r *http.Request) {
+func (g Google) GetUserId(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 	content, err := g.getUserInfo(r.FormValue("state"), r.FormValue("code"))
 	if err != nil {
 		fmt.Println(err.Error())
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		return
+		return nil, err
 	}
-	fmt.Fprintf(w, "Content: %s\n", content)
+
+	return content, nil
 }
 
 func (g Google) getUserInfo(state string, code string) ([]byte, error) {

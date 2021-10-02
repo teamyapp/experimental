@@ -6,18 +6,22 @@ import (
 	"github.com/teamyapp/experimental/yibolu/identity/app/service"
 )
 
+var clientIdKey = "clientId"
+
 func newSignInHandlerFunc(authenticationService service.Authentication) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		oauthProviderName := r.FormValue("oauth_provider")
-		clientId := r.FormValue("clientId")
+		clientId := r.FormValue(clientIdKey)
 
-		authenticationService.RequestOAuthSignIn(oauthProviderName, clientId)
+		authenticationService.RequestOAuthSignIn(w, r, oauthProviderName, clientId)
 	}
 }
 
 func newSignInFinishHandlerFunc(authenticationService service.Authentication) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		panic("not implemented")
+		oauthProvider := "google"
+		clientId, _ := r.Cookie(clientIdKey)
+		authenticationService.FinishOAuthSignIn(w, r, oauthProvider, clientId)
 	}
 }
 
