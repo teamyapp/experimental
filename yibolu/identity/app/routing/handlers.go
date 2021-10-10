@@ -1,6 +1,7 @@
 package routing
 
 import (
+	"github.com/teamyapp/experimental/yibolu/identity/app/oauth"
 	"net/http"
 
 	"github.com/teamyapp/experimental/yibolu/identity/app/service"
@@ -8,30 +9,38 @@ import (
 
 var clientIdKey = "clientId"
 
-func newSignInHandlerFunc(authenticationService service.Authentication) http.HandlerFunc {
+func newSignInHandlerFunc(identity service.Identity) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		oauthProviderName := r.FormValue("oauth_provider")
 		clientId := r.FormValue(clientIdKey)
 
-		authenticationService.RequestOAuthSignIn(w, r, oauthProviderName, clientId)
+		url, err := identity.RequestOAuthSignInURL(oauthProviderName, clientId)
+
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - Bad Request!"))
+			return
+		}
+
+		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }
 
-func newSignInFinishHandlerFunc(authenticationService service.Authentication) http.HandlerFunc {
+func newSignInFinishHandlerFunc(identity service.Identity) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		oauthProvider := "google"
-		clientId, _ := r.Cookie(clientIdKey)
-		authenticationService.FinishOAuthSignIn(w, r, oauthProvider, clientId)
+		state := oauth.GetOAuthCallbackState(r.FormValue("state"))
+		authCode := r.FormValue("code")
+		identity.FinishOAuthSignIn(authCode, state.OauthProvider, state.ClientId)
 	}
 }
 
-func newGetClientIDHandlerFunc(authenticationService service.Authentication) http.HandlerFunc {
+func newGetClientIDHandlerFunc(identity service.Identity) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		panic("not implemented")
 	}
 }
 
-func newSubscribeClientHandlerFunc(authenticationService service.Authentication) http.HandlerFunc {
+func newSubscribeClientHandlerFunc(identity service.Identity) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		panic("not implemented")
 	}

@@ -1,9 +1,11 @@
 package oauth
 
-import "net/http"
+import (
+	"github.com/teamyapp/experimental/yibolu/identity/app/entity"
+)
 
 type OAuth interface {
 	GetName() string
-	RedirectToLogin(w http.ResponseWriter, r *http.Request)
-	GetUserInfo(w http.ResponseWriter, r *http.Request) ([]byte, error)
+	GetLoginURL(clientId string) string
+	GetUserInfo(authorizationCode string) (entity.ExternalUserInfo, error)
 }

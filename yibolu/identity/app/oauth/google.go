@@ -1,7 +1,9 @@
 package oauth
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/teamyapp/experimental/yibolu/identity/app/entity"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"io/ioutil"
@@ -12,6 +14,8 @@ import (
 var (
 	// TODO: randomize it
 	oauthStateString = "pseudo-random"
+
+	googleUserInfoURL = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 )
 
 type Google struct {
@@ -30,41 +34,35 @@ func NewGoogle() Google {
 	}
 }
 
-func (g Google) RedirectToLogin(w http.ResponseWriter, r *http.Request) {
-	url := g.googleOauthConfig.AuthCodeURL(oauthStateString)
-
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+func (g Google) GetLoginURL(clientId string) string {
+	// TODO: Create util function to construct correct state by clientId
+	url := g.googleOauthConfig.AuthCodeURL(clientId)
+	return url
 }
 
-func (g Google) GetUserInfo(w http.ResponseWriter, r *http.Request) ([]byte, error) {
-	content, err := g.getUserInfo(r.FormValue("state"), r.FormValue("code"))
+func (g Google) GetUserInfo(authorizationCode string) (entity.ExternalUserInfo, error) {
+	token, err := g.googleOauthConfig.Exchange(oauth2.NoContext, authorizationCode)
+
+	userinfo := entity.ExternalUserInfo{}
+
 	if err != nil {
-		fmt.Println(err.Error())
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		return nil, err
+		return userinfo, fmt.Errorf("code exchange failed: %s", err.Error())
+	}
+	response, err := http.Get(googleUserInfoURL + token.AccessToken)
+	if err != nil {
+		return userinfo, fmt.Errorf("failed getting user info: %s", err.Error())
 	}
 
-	return content, nil
-}
-
-func (g Google) getUserInfo(state string, code string) ([]byte, error) {
-	if state != oauthStateString {
-		return nil, fmt.Errorf("invalid oauth state")
-	}
-	token, err := g.googleOauthConfig.Exchange(oauth2.NoContext, code)
-	if err != nil {
-		return nil, fmt.Errorf("code exchange failed: %s", err.Error())
-	}
-	response, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
-	if err != nil {
-		return nil, fmt.Errorf("failed getting user info: %s", err.Error())
-	}
 	defer response.Body.Close()
 	contents, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed reading response body: %s", err.Error())
+		return userinfo, fmt.Errorf("failed reading response body: %s", err.Error())
 	}
-	return contents, nil
+
+	// TODO: Need to figure out the contents
+	json.Unmarshal(contents, &userinfo)
+
+	return userinfo, nil
 }
 
 

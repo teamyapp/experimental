@@ -5,15 +5,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	//"os"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
-
-const clientID = "4da1b4a1f09b0ba7a81e"
-const clientSecret = "7ebe0c784eaa7f836d373bb0ced17ee0bffda1dd"
 
 const googleClientID = "893937988570-76ue298clpd8fcjho532phrbjfnbl61d.apps.googleusercontent.com"
 const googleClientSecret = "h8kUGn8q8vfR5_WTxjP-OeNL"
@@ -25,8 +23,8 @@ var (
 func init() {
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "http://localhost:8080/callback",
-		ClientID:     googleClientID,
-		ClientSecret: googleClientSecret,
+		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
 		Endpoint:     google.Endpoint,
 	}

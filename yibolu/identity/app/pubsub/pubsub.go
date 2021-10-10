@@ -10,7 +10,3 @@ type PubSub interface {
 type Subscription interface {
 	Unsubscribe() error
 }
-
-type RabbitMQ struct {
-
-}
