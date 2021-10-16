@@ -26,27 +26,27 @@ func getRoutes(
 	caesarCipher security.CaesarCipher,
 	pubsub pubsub.PubSub) []route {
 
-	identity := service.NewIdentity(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher, pubsub)
+	identityService := service.NewIdentity(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher, pubsub)
 	return []route{
 		{
 			path:       "/sign-in/{oauth_provider}",
 			method:     http.MethodGet,
-			handleFunc: newSignInHandlerFunc(identity),
+			handleFunc: newSignInHandlerFunc(identityService),
 		},
 		{
 			path:       "/sign-in/{oauth_provider}/callback/clients/{encrypted_client_id}",
 			method:     http.MethodGet,
-			handleFunc: newSignInFinishHandlerFunc(identity),
+			handleFunc: newSignInFinishHandlerFunc(identityService),
 		},
 		{
 			path:       "/sign-in/clientID",
 			method:     http.MethodGet,
-			handleFunc: newGetClientIDHandlerFunc(identity),
+			handleFunc: newGetClientIDHandlerFunc(identityService),
 		},
 		{
 			path:       "/sign-in/subscribe",
 			method:     http.MethodGet,
-			handleFunc: newSubscribeClientHandlerFunc(identity),
+			handleFunc: newSubscribeClientHandlerFunc(identityService),
 		},
 	}
 }

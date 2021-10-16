@@ -12,8 +12,7 @@ import (
 	"time"
 )
 
-var timeWait = time.Minute * 5 // 5 minutes
-
+var defaultTimeOut = time.Minute * 5
 
 type Identity struct {
 	idGenerator     idgen.IDGenerator
@@ -21,39 +20,34 @@ type Identity struct {
 	externalUserDao dao.ExternalUser
 	jwtAuthority    security.JWTAuthority
 	caesarCipher    security.CaesarCipher
-	oauth           map[string] oauth.OAuth
-	pubsub    		pubsub.PubSub
+	oauthProviders  map[string] oauth.OAuth
+	pubsub          pubsub.PubSub
 }
 
 func (s Identity) RequestOAuthSignInURL(oauthProvider string, clientId string) (string, error) {
-	oauthHandler, ok := s.oauth[oauthProvider]
+	oauthHandler, ok := s.oauthProviders[oauthProvider]
 	if !ok {
-		return "", errors.New("invalid oauth provider")
+		return "", errors.New("invalid oauthProviders provider")
 	}
 
-	url := oauthHandler.GetLoginURL(clientId)
-
-	return url, nil
+	return oauthHandler.GetSignInURL(clientId), nil
 }
 
 func (i Identity) FinishOAuthSignIn(authorizationCode string, oauthProvider string, clientId string) error {
-	oauth, ok := i.oauth[oauthProvider]
+	oauth, ok := i.oauthProviders[oauthProvider]
 
 	if !ok {
 		return errors.New("Unknown OauthProvider: " + oauthProvider)
 	}
-
 	externalUserInfo, _ := oauth.GetUserInfo(authorizationCode)
 	userInfo := i.getInternalUserInfo(externalUserInfo)
 
 	jwt := i.jwtAuthority.GenerateJWT(clientId, userInfo)
 	i.pubsub.Publish(clientId, jwt)
-
 	return nil
 }
 
-func (s Identity) SubscribeClient(channel channel.Channel, clientID string) error {
-
+func (s Identity) ClientSubscribe(channel channel.Channel, clientID string) error {
 	go func() {
 		defer channel.Disconnect()
 		onJwtReceive := make(chan string)
@@ -65,13 +59,12 @@ func (s Identity) SubscribeClient(channel channel.Channel, clientID string) erro
 		defer subscription.Unsubscribe()
 
 		select {
-		case jwt := <- onJwtReceive:
+		case jwtToken := <- onJwtReceive:
 			// Send JWT signed by Identity service
-			channel.SendMessage(jwt)
-		case <- time.After(time.Minute * 5):
+			channel.SendMessage(jwtToken)
+		case <- time.After(defaultTimeOut):
 		}
 	}()
-
 	return nil
 }
 
@@ -99,7 +92,7 @@ func NewIdentity(oauthProviders []oauth.OAuth, idGenerator idgen.IDGenerator,
 		externalUserDao: externalUserDao,
 		jwtAuthority:    jwtAuthority,
 		caesarCipher:    caesarCipher,
-		oauth:		     oauth,
-		pubsub:    		 sub,
+		oauthProviders:  oauth,
+		pubsub:          sub,
 	}
 }

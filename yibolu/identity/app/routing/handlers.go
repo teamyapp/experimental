@@ -18,7 +18,6 @@ func newSignInHandlerFunc(identity service.Identity) http.HandlerFunc {
 
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("400 - Bad Request!"))
 			return
 		}
 

@@ -6,6 +6,6 @@ import (
 
 type OAuth interface {
 	GetName() string
-	GetLoginURL(clientId string) string
+	GetSignInURL(clientId string) string
 	GetUserInfo(authorizationCode string) (entity.ExternalUserInfo, error)
 }

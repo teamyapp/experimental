@@ -5,6 +5,6 @@ import (
 )
 
 // GetOAuthCallbackState TODO: implement this function, and maybe integrate with redis to get the clientId
-func GetOAuthCallbackState(state string) entity.State {
-	return entity.State{}
+func GetOAuthCallbackState(state string) entity.OAuthState {
+	return entity.OAuthState{}
 }

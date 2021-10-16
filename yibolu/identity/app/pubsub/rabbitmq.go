@@ -6,9 +6,9 @@ import (
 )
 
 type RabbitMQ struct {
-	started       	bool
-	mutex         	sync.Mutex
-	sub				map[string]*RabbitQueue
+	started      	bool
+	mutex        	sync.Mutex
+	subscriptions 	map[string][]*RabbitQueue
 }
 
 func (r *RabbitMQ) Start() {
@@ -26,13 +26,13 @@ func (r *RabbitMQ) Stop() {
 func (r *RabbitMQ) Subscribe(topic string, callback func(data interface{})) Subscription {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
-	sub := RabbitQueue{
+	subscription := &RabbitQueue{
 		pubSub:   r,
 		topic:    topic,
 		callback: callback,
 	}
-	r.sub[topic] = &sub
-	return sub
+	r.subscriptions[topic] = append(r.subscriptions[topic], subscription)
+	return subscription
 }
 
 func (r *RabbitMQ) Publish(topic string, data interface{}) error {
@@ -42,19 +42,23 @@ func (r *RabbitMQ) Publish(topic string, data interface{}) error {
 		return errors.New("pubSub not started")
 	}
 
-	sub, ok := r.sub[topic]
+	subs, ok := r.subscriptions[topic]
 	if !ok {
-		return nil
+		return errors.New("we never subscribed the topic")
 	}
 
-	sub.callback(data)
+	for _, sub := range subs {
+		go func(sub *RabbitQueue) {
+			sub.callback(data)
+		}(sub)
+	}
+
 	return nil
 }
 
 func NewRabbitMQ() *RabbitMQ {
 	return &RabbitMQ{
-		mutex:         	sync.Mutex{},
-		sub: 			make(map[string]*RabbitQueue),
+		subscriptions: make(map[string][]*RabbitQueue),
 	}
 }
 
@@ -66,8 +70,22 @@ type RabbitQueue struct {
 	callback func(data interface{})
 }
 
-func (r RabbitQueue) Unsubscribe() error {
-	delete(r.pubSub.sub, r.topic)
+func (r *RabbitQueue) Unsubscribe() error {
+	r.pubSub.mutex.Lock()
+	defer r.pubSub.mutex.Unlock()
+	subs := r.pubSub.subscriptions[r.topic]
+	newSubs := make([]*RabbitQueue, 0)
+	for _, sub := range subs {
+		if sub != r {
+			continue
+		}
+		newSubs = append(newSubs, sub)
+	}
+	if len(newSubs) == 0 {
+		delete(r.pubSub.subscriptions, r.topic)
+	} else {
+		r.pubSub.subscriptions[r.topic] = newSubs
+	}
 	return nil
 }
 

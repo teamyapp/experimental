@@ -1,8 +1,8 @@
 package entity
 
-type State struct {
-	StateId 		string
-	ClientId 		string
+type OAuthState struct {
+	StateID 		string
+	ClientID 		string
 	OauthProvider 	string
 }
 
