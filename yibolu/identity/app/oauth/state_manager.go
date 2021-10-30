@@ -4,7 +4,7 @@ import "github.com/teamyapp/experimental/yibolu/identity/app/entity"
 
 type StateManager interface {
 	GetOAuthCallbackState(stateID string) entity.OAuthState
-	SaveOAuthState(state entity.OAuthState)
+	SaveOAuthState(state entity.OAuthState) error
 }
 
 type CacheStateManager struct {

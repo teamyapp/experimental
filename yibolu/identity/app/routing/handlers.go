@@ -25,7 +25,9 @@ func newSignInHandlerFunc(identity service.Identity) http.HandlerFunc {
 			ClientID: clientId,
 			OAuthProvider: oauthProviderName,
 		}
-		identity.StateManager.SaveOAuthState(state)
+		if err := identity.StateManager.SaveOAuthState(state); err != nil {
+			return
+		}
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }
