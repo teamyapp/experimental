@@ -1,73 +1,105 @@
 package security
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )
 
 type JWTAuthority struct {
-	signingKey []byte
+	signingKey 	[]byte
+	issuer		string
+	ttl			time.Duration
 }
 
-var issuer = "Identity"
-var TTL = time.Hour * 4
-
-func (j JWTAuthority) GenerateJWT(userID string, clientID string) (string, error) {
-	nowTime := time.Now()
-	expireTime := nowTime.Add(TTL)
-
-	claims := IdentityClaims{
-		UserID: 	userID,
-		ClientID:   clientID,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(),
-			Issuer:    issuer,
-		},
+func (j JWTAuthority) GenerateJWT(payload interface{}) (string, error) {
+	payloadMap, err := toMap(payload)
+	if err != nil {
+		return "", err
 	}
 
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(j.signingKey)
+	j.loadStandardInfo(payloadMap)
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims(payloadMap))
+	return token.SignedString(j.signingKey)
 }
 
-func (j JWTAuthority) DecodeJWT(jwtToken string) (string, string, error) {
-	identityClaim, err := j.parse(jwtToken)
+func (j JWTAuthority) DecodeJWT(jwtToken string, output interface{})  error {
+	claims, err := j.parse(jwtToken)
 
 	if err != nil {
-		return "", "", err
+		return err
 	}
 
-	return identityClaim.UserID, identityClaim.ClientID, nil
+	buf, err := json.Marshal(map[string]interface{}(claims))
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(buf, output)
 }
 
 func (j JWTAuthority) ValidateToken(jwtToken string) bool  {
-	_, err := j.parse(jwtToken)
+	claims, err := j.parse(jwtToken)
 
 	if err != nil {
 		return false
 	}
 
-	return true
+	return checkTokenRemainingValidity(claims["exp"])
 }
 
-func (j JWTAuthority) parse(jwtToken string) (*IdentityClaims, error) {
-	tokenClaims, err := jwt.ParseWithClaims(jwtToken, &IdentityClaims{}, func(token *jwt.Token) (interface{}, error) {
+func checkTokenRemainingValidity(timestamp interface{}) bool {
+	if validity, ok := timestamp.(float64); ok {
+		tm := time.Unix(int64(validity), 0)
+		remain := tm.Sub(time.Now())
+		if remain > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func (j JWTAuthority) parse(jwtToken string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
 		return j.signingKey, nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
 
-	if tokenClaims != nil {
-		if claims, ok := tokenClaims.Claims.(*IdentityClaims); ok && tokenClaims.Valid {
-			return claims, nil
-		}
+	if !token.Valid {
+		return nil, errors.New("token is invalid")
 	}
 
-	return nil, err
+	var claims jwt.MapClaims
+	var ok bool
+	if claims, ok = token.Claims.(jwt.MapClaims); !ok {
+		return nil, errors.New("token payload is not map")
+	}
+
+	return claims, nil
 }
 
-func NewJWTAuthority(signingKey []byte) JWTAuthority {
+func (j JWTAuthority) loadStandardInfo(payloadMap map[string]interface{})  {
+	payloadMap["iat"] = time.Now()
+	payloadMap["issuer"] = j.issuer
+	payloadMap["exp"] = time.After(j.ttl)
+}
+
+func toMap(input interface{}) (map[string]interface{}, error) {
+	output := make(map[string]interface{})
+	jsonBuf, _ := json.Marshal(input)
+	err := json.Unmarshal(jsonBuf, &output)
+	return output, err
+}
+
+
+func NewJWTAuthority(signingKey []byte, issuer string, ttl time.Duration) JWTAuthority {
 	return JWTAuthority {
 		signingKey:		signingKey,
+		issuer:			issuer,
+		ttl: 			ttl,
 	}
 }

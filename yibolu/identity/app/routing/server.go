@@ -19,11 +19,12 @@ func NewServer(
 	externalUserDao dao.ExternalUser,
 	jwtAuthority security.JWTAuthority,
 	caesarCipher security.CaesarCipher,
-	pubsub pubsub.PubSub) *http.ServeMux {
+	pubsub pubsub.PubSub,
+	stateManager oauth.StateManager) *http.ServeMux {
 
 	serveMux := http.NewServeMux()
 	router := mux.NewRouter()
-	routes := getRoutes(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher, pubsub)
+	routes := getRoutes(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher, pubsub, stateManager)
 	for _, r := range routes {
 		router.HandleFunc(r.path, r.handleFunc).Methods(r.method)
 	}

@@ -1,10 +1,10 @@
 package routing
 
 import (
-	"github.com/teamyapp/experimental/yibolu/identity/app/oauth"
-	"net/http"
-
+	"github.com/google/uuid"
+	"github.com/teamyapp/experimental/yibolu/identity/app/entity"
 	"github.com/teamyapp/experimental/yibolu/identity/app/service"
+	"net/http"
 )
 
 var clientIdKey = "clientId"
@@ -20,16 +20,22 @@ func newSignInHandlerFunc(identity service.Identity) http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-
+		state := entity.OAuthState{
+			StateID: uuid.New().String(),
+			ClientID: clientId,
+			OAuthProvider: oauthProviderName,
+		}
+		identity.StateManager.SaveOAuthState(state)
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }
 
 func newSignInFinishHandlerFunc(identity service.Identity) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		state := oauth.GetOAuthCallbackState(r.FormValue("state"))
+		stateID := r.FormValue("state")
+		state := identity.StateManager.GetOAuthCallbackState(stateID)
 		authCode := r.FormValue("code")
-		identity.FinishOAuthSignIn(authCode, state.OauthProvider, state.ClientId)
+		identity.FinishOAuthSignIn(authCode, state)
 	}
 }
 

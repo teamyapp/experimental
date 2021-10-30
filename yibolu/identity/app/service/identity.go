@@ -22,28 +22,28 @@ type Identity struct {
 	caesarCipher    security.CaesarCipher
 	oauthProviders  map[string] oauth.OAuth
 	pubsub          pubsub.PubSub
+	StateManager	oauth.StateManager
 }
 
-func (s Identity) RequestOAuthSignInURL(oauthProvider string, clientId string) (string, error) {
-	oauthHandler, ok := s.oauthProviders[oauthProvider]
+func (i Identity) RequestOAuthSignInURL(oauthProvider string, clientId string) (string, error) {
+	oauthHandler, ok := i.oauthProviders[oauthProvider]
 	if !ok {
 		return "", errors.New("invalid oauthProviders provider")
 	}
-
 	return oauthHandler.GetSignInURL(clientId), nil
 }
 
-func (i Identity) FinishOAuthSignIn(authorizationCode string, oauthProvider string, clientId string) error {
+func (i Identity) FinishOAuthSignIn(authorizationCode string, state entity.OAuthState) error {
+	clientID, oauthProvider := state.ClientID, state.OAuthProvider
 	oauth, ok := i.oauthProviders[oauthProvider]
-
 	if !ok {
 		return errors.New("Unknown OauthProvider: " + oauthProvider)
 	}
 	externalUserInfo, _ := oauth.GetUserInfo(authorizationCode)
 	userInfo := i.getInternalUserInfo(externalUserInfo)
 
-	jwt := i.jwtAuthority.GenerateJWT(clientId, userInfo)
-	i.pubsub.Publish(clientId, jwt)
+	jwt, _ := i.jwtAuthority.GenerateJWT(userInfo)
+	i.pubsub.Publish(clientID, jwt)
 	return nil
 }
 
@@ -80,19 +80,20 @@ func (i Identity) getInternalUserInfo(externalUserInfo entity.ExternalUserInfo) 
 
 func NewIdentity(oauthProviders []oauth.OAuth, idGenerator idgen.IDGenerator,
 	userDao dao.User, externalUserDao dao.ExternalUser, jwtAuthority security.JWTAuthority,
-	caesarCipher security.CaesarCipher, sub pubsub.PubSub) Identity {
+	caesarCipher security.CaesarCipher, sub pubsub.PubSub, stateManager	oauth.StateManager) Identity {
 	oauth := make(map[string] oauth.OAuth)
 	for _, provider := range oauthProviders {
 		oauth[provider.GetName()] = provider
 	}
 
 	return Identity{
-		idGenerator:     idGenerator,
-		userDao:         userDao,
-		externalUserDao: externalUserDao,
-		jwtAuthority:    jwtAuthority,
-		caesarCipher:    caesarCipher,
-		oauthProviders:  oauth,
-		pubsub:          sub,
+		idGenerator:     	idGenerator,
+		userDao:         	userDao,
+		externalUserDao: 	externalUserDao,
+		jwtAuthority:    	jwtAuthority,
+		caesarCipher:    	caesarCipher,
+		oauthProviders:  	oauth,
+		pubsub:          	sub,
+		StateManager:		stateManager,
 	}
 }

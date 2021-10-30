@@ -15,13 +15,7 @@ import (
 var (
 	// TODO: randomize it
 	oauthStateString = "pseudo-random"
-
-	googleUserInfoURL = url.URL{
-		Scheme: "https",
-		Host:   "www.googleapis.com",
-		Path: 	"/oauth2/v2/userinfo",
-	}
-
+	googleUserInfoURL, _ = url.Parse("https://www.googleapis.com/oauth2/v2/userinfo")
 )
 
 type Google struct {

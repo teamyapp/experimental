@@ -21,8 +21,8 @@ type Channel interface {
 }
 
 type WebSocketChannel struct{
-	conn		*websocket.Conn
-	onMessageReceived chan []byte
+	conn                *websocket.Conn
+	onMessageReceivedCh chan []byte
 }
 
 func (w WebSocketChannel) Listen() {
@@ -35,7 +35,7 @@ func (w WebSocketChannel) Listen() {
 				}
 				break
 			}
-			w.onMessageReceived <- data
+			w.onMessageReceivedCh <- data
 		}
 	}()
 }
@@ -62,7 +62,7 @@ func (w WebSocketChannel) SendMessage(message string) error {
 }
 
 func (w WebSocketChannel) OnMessageReceived() chan []byte {
-	return w.onMessageReceived
+	return w.onMessageReceivedCh
 }
 
 func NewWebSocketChannel(w http.ResponseWriter, r *http.Request) (*WebSocketChannel, error) {
@@ -73,8 +73,8 @@ func NewWebSocketChannel(w http.ResponseWriter, r *http.Request) (*WebSocketChan
 	}
 
 	socket := &WebSocketChannel{
-		conn: conn,
-		onMessageReceived: make(chan []byte, 0),
+		conn:                conn,
+		onMessageReceivedCh: make(chan []byte, 0),
 	}
 
 	return socket, nil

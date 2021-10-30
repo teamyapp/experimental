@@ -24,9 +24,10 @@ func getRoutes(
 	externalUserDao dao.ExternalUser,
 	jwtAuthority security.JWTAuthority,
 	caesarCipher security.CaesarCipher,
-	pubsub pubsub.PubSub) []route {
+	pubsub pubsub.PubSub,
+	stateManager oauth.StateManager) []route {
 
-	identityService := service.NewIdentity(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher, pubsub)
+	identityService := service.NewIdentity(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher, pubsub, stateManager)
 	return []route{
 		{
 			path:       "/sign-in/{oauth_provider}",

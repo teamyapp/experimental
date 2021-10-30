@@ -13,9 +13,6 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-const googleClientID = "893937988570-76ue298clpd8fcjho532phrbjfnbl61d.apps.googleusercontent.com"
-const googleClientSecret = "h8kUGn8q8vfR5_WTxjP-OeNL"
-
 var (
 	googleOauthConfig *oauth2.Config
 )

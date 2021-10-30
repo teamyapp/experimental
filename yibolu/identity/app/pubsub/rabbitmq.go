@@ -76,7 +76,7 @@ func (r *RabbitQueue) Unsubscribe() error {
 	subs := r.pubSub.subscriptions[r.topic]
 	newSubs := make([]*RabbitQueue, 0)
 	for _, sub := range subs {
-		if sub != r {
+		if sub == r {
 			continue
 		}
 		newSubs = append(newSubs, sub)
