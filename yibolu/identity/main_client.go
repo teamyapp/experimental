@@ -3,17 +3,15 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
+	"time"
+
 	//"os"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
-
-const clientID = "4da1b4a1f09b0ba7a81e"
-const clientSecret = "7ebe0c784eaa7f836d373bb0ced17ee0bffda1dd"
-
-const googleClientID = "893937988570-u5doflho5jj6169767q4svnl693f41eq.apps.googleusercontent.com"
-const googleClientSecret = "u0Z-ldhCar1TYWqOByBPSCp6"
 
 var (
 	googleOauthConfig *oauth2.Config
@@ -22,8 +20,8 @@ var (
 func init() {
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "http://localhost:8080/callback",
-		ClientID:     googleClientID,
-		ClientSecret: googleClientSecret,
+		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
 		Endpoint:     google.Endpoint,
 	}
@@ -44,6 +42,9 @@ var (
 )
 func handleGoogleLogin(w http.ResponseWriter, r *http.Request) {
 	url := googleOauthConfig.AuthCodeURL(oauthStateString)
+	expiration := time.Now().Add(5 * time.Minute)
+	cookie := http.Cookie{Name: "clientId", Value: "lubo0319", Expires: expiration}
+	http.SetCookie(w, &cookie)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
@@ -54,6 +55,9 @@ func handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+	cookie, _ := r.Cookie("clientId")
+	clientID := cookie.Value
+	log.Println(clientID)
 	fmt.Fprintf(w, "Content: %s\n", content)
 }
 
@@ -62,6 +66,7 @@ func getUserInfo(state string, code string) ([]byte, error) {
 		return nil, fmt.Errorf("invalid oauth state")
 	}
 
+	fmt.Println(code)
 	token, err := googleOauthConfig.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		return nil, fmt.Errorf("code exchange failed: %s", err.Error())
@@ -77,6 +82,8 @@ func getUserInfo(state string, code string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed reading response body: %s", err.Error())
 	}
+
+	fmt.Println(contents)
 	return contents, nil
 }
 

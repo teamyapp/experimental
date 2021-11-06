@@ -2,6 +2,7 @@ package routing
 
 import (
 	"github.com/teamyapp/experimental/yibolu/identity/app/oauth"
+	"github.com/teamyapp/experimental/yibolu/identity/app/pubsub"
 	"net/http"
 
 	"github.com/teamyapp/experimental/yibolu/identity/app/dao"
@@ -22,29 +23,31 @@ func getRoutes(
 	userDao dao.User,
 	externalUserDao dao.ExternalUser,
 	jwtAuthority security.JWTAuthority,
-	caesarCipher security.CaesarCipher) []route {
+	caesarCipher security.CaesarCipher,
+	pubsub pubsub.PubSub,
+	stateManager oauth.StateManager) []route {
 
-	authenticationService := service.NewIdentity(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher)
+	identityService := service.NewIdentity(oauthProviders, idGenerator, userDao, externalUserDao, jwtAuthority, caesarCipher, pubsub, stateManager)
 	return []route{
 		{
 			path:       "/sign-in/{oauth_provider}",
 			method:     http.MethodGet,
-			handleFunc: newSignInHandlerFunc(authenticationService),
+			handleFunc: newSignInHandlerFunc(identityService),
 		},
 		{
-			path:       "/sign-in/{oauth_provider}/callback/clients/{encrypted_client_id}",
+			path:       "/sign-in/{oauth_provider}/callback",
 			method:     http.MethodGet,
-			handleFunc: newSignInFinishHandlerFunc(authenticationService),
+			handleFunc: newSignInFinishHandlerFunc(identityService),
 		},
 		{
 			path:       "/sign-in/clientID",
 			method:     http.MethodGet,
-			handleFunc: newGetClientIDHandlerFunc(authenticationService),
+			handleFunc: newGetClientIDHandlerFunc(identityService),
 		},
 		{
 			path:       "/sign-in/subscribe",
 			method:     http.MethodGet,
-			handleFunc: newSubscribeClientHandlerFunc(authenticationService),
+			handleFunc: newSubscribeClientHandlerFunc(identityService),
 		},
 	}
 }
