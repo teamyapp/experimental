@@ -2,6 +2,8 @@ package service
 
 import (
 	"errors"
+	"fmt"
+	"github.com/google/uuid"
 	"github.com/teamyapp/experimental/yibolu/identity/app/channel"
 	"github.com/teamyapp/experimental/yibolu/identity/app/dao"
 	"github.com/teamyapp/experimental/yibolu/identity/app/entity"
@@ -22,23 +24,37 @@ type Identity struct {
 	caesarCipher    security.CaesarCipher
 	oauthProviders  map[string] oauth.OAuth
 	pubsub          pubsub.PubSub
-	StateManager	oauth.StateManager
+	stateManager	oauth.StateManager
 }
 
-func (i Identity) RequestOAuthSignInURL(oauthProvider string, clientId string) (string, error) {
+func (i Identity) RequestOAuthSignInURL(oauthProvider string, clientID string) (string, error) {
 	oauthHandler, ok := i.oauthProviders[oauthProvider]
 	if !ok {
 		return "", errors.New("invalid oauthProviders provider")
 	}
-	return oauthHandler.GetSignInURL(clientId), nil
+	stateID := uuid.New().String()
+	err := i.stateManager.SaveOAuthState(stateID, entity.OAuthState{ClientID: clientID})
+
+	if err != nil {
+		return "", err
+	}
+
+	return oauthHandler.GetSignInURL(stateID), nil
 }
 
-func (i Identity) FinishOAuthSignIn(authorizationCode string, state entity.OAuthState) error {
-	clientID, oauthProvider := state.ClientID, state.OAuthProvider
+func (i Identity) FinishOAuthSignIn(authorizationCode, stateID, oauthProvider string) error {
+	state, err := i.stateManager.GetOAuthState(stateID)
+
+	if err != nil {
+		return err
+	}
+
+	clientID := state.ClientID
 	oauth, ok := i.oauthProviders[oauthProvider]
 	if !ok {
 		return errors.New("Unknown OauthProvider: " + oauthProvider)
 	}
+	// TODO: Register new user if user not exist
 	externalUserInfo, _ := oauth.GetUserInfo(authorizationCode)
 	userInfo := i.getInternalUserInfo(externalUserInfo)
 
@@ -78,6 +94,14 @@ func (i Identity) getInternalUserInfo(externalUserInfo entity.ExternalUserInfo) 
 	panic("not implemented")
 }
 
+func (i Identity) GetOAuthProvider(providerName string) (oauth.OAuth, error) {
+	provider, ok := i.oauthProviders[providerName]
+	if !ok {
+		return nil, fmt.Errorf("provider not found: %s", provider)
+	}
+	return provider, nil
+}
+
 func NewIdentity(oauthProviders []oauth.OAuth, idGenerator idgen.IDGenerator,
 	userDao dao.User, externalUserDao dao.ExternalUser, jwtAuthority security.JWTAuthority,
 	caesarCipher security.CaesarCipher, sub pubsub.PubSub, stateManager	oauth.StateManager) Identity {
@@ -94,6 +118,6 @@ func NewIdentity(oauthProviders []oauth.OAuth, idGenerator idgen.IDGenerator,
 		caesarCipher:    	caesarCipher,
 		oauthProviders:  	oauth,
 		pubsub:          	sub,
-		StateManager:		stateManager,
+		stateManager:		stateManager,
 	}
 }

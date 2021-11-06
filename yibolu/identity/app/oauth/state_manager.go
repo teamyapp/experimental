@@ -3,20 +3,20 @@ package oauth
 import "github.com/teamyapp/experimental/yibolu/identity/app/entity"
 
 type StateManager interface {
-	GetOAuthCallbackState(stateID string) entity.OAuthState
-	SaveOAuthState(state entity.OAuthState) error
+	GetOAuthState(stateID string) (entity.OAuthState, error)
+	SaveOAuthState(stateID string, state entity.OAuthState) error
 }
 
-type CacheStateManager struct {
+type InMemoryStateManager struct {
 	cache			map[string]interface{}
 }
 
-// GetOAuthCallbackState TODO: implement this function, and maybe integrate with redis to get the clientId
-func (c *CacheStateManager) GetOAuthCallbackState(stateID string) entity.OAuthState {
-	return entity.OAuthState{}
+func (c *InMemoryStateManager) GetOAuthState(stateID string) (entity.OAuthState, error) {
+	//TODO: implement this function, and maybe integrate with redis to get the clientId
+	return entity.OAuthState{}, nil
 }
 
-// SaveOAuthState TODO: implement this function, and maybe integrate with redis to get the clientId
-func (c *CacheStateManager) SaveOAuthState(entity.OAuthState) error {
+func (c *InMemoryStateManager) SaveOAuthState(stateID string, state entity.OAuthState) error {
+	//TODO: implement this function, and maybe integrate with redis to get the clientId
 	return nil
 }

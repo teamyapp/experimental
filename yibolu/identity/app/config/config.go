@@ -13,6 +13,7 @@ type Config struct {
 	OAuthProviders 		int    `envconfig:"CAESAR_CIPHER_OFFSET"`
 	GoogleClientID     	string `envconfig:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret 	string `envconfig:"GOOGLE_CLIENT_SECRET"`
+	JwtTTL				int    `envconfig:"JWT_TTL"`
 	//DbHost             string `envconfig:"DB_HOST"`
 	//DbPort             int    `envconfig:"DB_PORT"`
 	//DBName             string `envconfig:"DB_NAME"`

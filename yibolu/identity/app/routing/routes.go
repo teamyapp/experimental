@@ -35,7 +35,7 @@ func getRoutes(
 			handleFunc: newSignInHandlerFunc(identityService),
 		},
 		{
-			path:       "/sign-in/{oauth_provider}/callback/clients/{encrypted_client_id}",
+			path:       "/sign-in/{oauth_provider}/callback",
 			method:     http.MethodGet,
 			handleFunc: newSignInFinishHandlerFunc(identityService),
 		},

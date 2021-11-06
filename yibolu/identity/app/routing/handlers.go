@@ -1,8 +1,6 @@
 package routing
 
 import (
-	"github.com/google/uuid"
-	"github.com/teamyapp/experimental/yibolu/identity/app/entity"
 	"github.com/teamyapp/experimental/yibolu/identity/app/service"
 	"net/http"
 )
@@ -20,24 +18,30 @@ func newSignInHandlerFunc(identity service.Identity) http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		state := entity.OAuthState{
-			StateID: uuid.New().String(),
-			ClientID: clientId,
-			OAuthProvider: oauthProviderName,
-		}
-		if err := identity.StateManager.SaveOAuthState(state); err != nil {
-			return
-		}
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 	}
 }
 
 func newSignInFinishHandlerFunc(identity service.Identity) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		stateID := r.FormValue("state")
-		state := identity.StateManager.GetOAuthCallbackState(stateID)
-		authCode := r.FormValue("code")
-		identity.FinishOAuthSignIn(authCode, state)
+		// TODO: research gorilla router to get the path parameter
+		providerName := r.FormValue("oauth_provider")
+		oauth, err := identity.GetOAuthProvider(providerName)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		stateID, err := oauth.GetStateID(r)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		authCode, err := oauth.GetAuthorizationCode(r)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		identity.FinishOAuthSignIn(authCode, stateID, providerName)
 	}
 }
 

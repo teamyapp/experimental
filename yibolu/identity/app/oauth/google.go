@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/teamyapp/experimental/yibolu/identity/app/config"
 	"github.com/teamyapp/experimental/yibolu/identity/app/entity"
@@ -22,6 +23,18 @@ type Google struct {
 	googleOauthConfig *oauth2.Config
 }
 
+func (g Google) GetStateID(request *http.Request) (string, error) {
+	stateID := request.FormValue("state")
+	if stateID == "" {
+		return "", errors.New("")
+	}
+	return stateID, nil
+}
+
+func (g Google) GetAuthorizationCode(request *http.Request) (string, error) {
+	panic("implement me")
+}
+
 func (g Google) GetName() string {
 	return "google"
 }
@@ -38,9 +51,9 @@ func NewGoogle(config config.Config) Google {
 	}
 }
 
-func (g Google) GetSignInURL(clientId string) string {
+func (g Google) GetSignInURL(stateID string) string {
 	// TODO: Create util function to construct correct state by clientId
-	url := g.googleOauthConfig.AuthCodeURL(clientId)
+	url := g.googleOauthConfig.AuthCodeURL(stateID)
 	return url
 }
 
@@ -70,6 +83,7 @@ func (g Google) GetUserInfo(authorizationCode string) (entity.ExternalUserInfo, 
 
 	return userInfo, nil
 }
+
 
 func getTokenAccessURL(accessToken string) string {
 	q := googleUserInfoURL.Query()
